@@ -32,16 +32,20 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 -Are all moderater commands admin only? (No) 
 
 # IN-TESTING-PHASE:
-Features, changes, need testing when bot is free:
+1) Features, changes, need testing when bot is free:
 
 [implemented] - Bold the votecount change
+
 [implemented] - Link the votecount to the message of vote
+
 [implemented] - Post a votecount in game chat every 10 votes
+
 [implemented] - Allow changes to day length when day is active
 *(needs more testing, likely will need to make a 2nd day_length int that gets reverted after a day)*
+
 [implemented] - Allow player swaps mid-game
 
-Bugs - need testing when bot is free::
+2) Bugs - need testing when bot is free::
 
 [implemented] - Bot doesn't track the order of which votes are placed
 
