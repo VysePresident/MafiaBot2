@@ -43,9 +43,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 [implemented] - Allow player swaps mid-game
 
-2) Bugs - need testing when bot is free::
 
-GEO (June 21 2023):
+GEO (June 21 2023) Listed:
 
 [implemented] - The bot currently reacts to all unvotes with a message as if the unvoter were not voting anyone to begin with.  It still correctly removes the vote at least.
 
