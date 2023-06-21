@@ -33,6 +33,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Are all moderater commands admin only? (No) 
 
+-Requesting a votecount in-thread increments the number.
+
 # IN-TESTING-PHASE:
 1) Features, changes, need testing when bot is free:
 
