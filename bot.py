@@ -22,6 +22,7 @@ vote_count_number = 1
 # votes = {}
 votes = collections.OrderedDict()
 prev_vote = None
+current_vote = None
 live_players = []
 vote_since_last_count = 0
 start_time = datetime.now()
@@ -140,13 +141,17 @@ async def vote(ctx, voted: discord.Member):
 
     # TEST
     if ctx.author in votes:
+        print("Gate 1")
         prev_vote = (ctx.author, votes.pop(ctx.author))
+    else:
+        print("Gate 2")
+        prev_vote = (ctx.author, "not voting")
     votes[ctx.author] = voted
     # END TEST
 
     # await ctx.send(f"{ctx.author.name} has voted for {voted.name}.")
     await ctx.send(f"{ctx.author.name} has voted for {votes[ctx.author].name}.") # TEST
-    await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False, vote_target=voted)
+    await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False, vote_change=voted)
 
 @bot.command()
 async def unvote(ctx):
@@ -158,7 +163,7 @@ async def unvote(ctx):
         # del votes[ctx.author]
         prev_vote = (ctx.author, votes.pop(ctx.author)) # TEST
         await ctx.send(f"{ctx.author.name} has unvoted.")
-        await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False, vote_target=prev_vote[1])
+        await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False, vote_change=prev_vote[1])
     # if ctx.channel != game_channel:
     #    await ctx.send("You can only vote in the game chat.")
     #    return
@@ -167,7 +172,7 @@ async def unvote(ctx):
 
 # CORRECTED VOTECOUNT TEST
 @bot.command()
-async def votecount(ctx, in_channel_request=True, vote_target=None):
+async def votecount(ctx, in_channel_request=True, vote_change=None):
     if in_channel_request is not True and in_channel_request is not False:
         await ctx.send("You specified the wrong number of parameters, foolish mortal!  Try again or taste my wrath!")
         return
@@ -193,21 +198,33 @@ async def votecount(ctx, in_channel_request=True, vote_target=None):
     votecount_message = f"**Vote Count {day_number}.{vote_count_number}**\n\n"
     endDay = False
     for voted, voters in count.items():
+        for voter in voters:
+            if voter is prev_vote[0]:
+                print("Spicy Mustard")
         remaining_votes = votes_required - len(voters)  # The number of votes remaining for a lynch
         lynch_status = '**LYNCH**' if remaining_votes == 0 else f"L-{remaining_votes}"
-        voters_str = ', '.join([voter.name for voter in voters])
+        # voters_str = ', '.join([voter.name for voter in voters])
+        voters_str = ', '.join([voter.name if voter is not prev_vote[0] else f'**{voter.name}**' for voter in voters])
         votecount_message += f"{voted.name}[{lynch_status}] - {voters_str}\n"
         if lynch_status == '**LYNCH**':
             endDay = True
-        if voted is vote_target:
+        if voted is vote_change:
             await game_channel.send(f"{voted.name} is {lynch_status}")
     not_voting = [player for player in signup_list if player not in votes.keys()]
-    votecount_message += f"\nNot Voting - {', '.join([player.name for player in not_voting])}"
+    if len(not_voting) > 0:
+        votecount_message += f"\nNot Voting - {', '.join([player.name if player is not prev_vote[0] else f'**{player.name}**' for player in not_voting])}"
+    else:
+        votecount_message += f"\nNot Voting - (None)"
+    if isinstance(prev_vote[1], str):
+        votecount_message += f"\n\n__Change__: *{prev_vote[0].name} switched from {prev_vote[1]} to {voted.name}*"
+    else:
+        votecount_message += f"\n\n__Change__: *{prev_vote[0].name} switched from {prev_vote[1].name} to {voted.name}*"
     votecount_message += f"\n\n*With {len(signup_list)} alive, it takes {votes_required} to lynch.*"
     votecount_message += "\n" + "-" * 40
     if endDay:
         await bot.get_command("kill").callback(ctx, voted)
-        votecount_message += f"\nKilling {voted.name}"
+        votecount_message += f"\n\n**{voted.name} has been removed from the game**"
+        votecount_message += f"\n\n**Night {day_number+1} begins now!**"
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         await game_channel.set_permissions(alive_role, send_messages=False)
         await game_channel.send("The day has ended with a lynch.")
@@ -215,8 +232,8 @@ async def votecount(ctx, in_channel_request=True, vote_target=None):
         await ctx.send(votecount_message)
     else:
         await vote_channel.send(votecount_message)
-    if vote_target is not None and vote_target not in count:
-        await game_channel.send(f"{vote_target.name} has zero votes")
+    if vote_change is not None and vote_change not in count:
+        await game_channel.send(f"{vote_change.name} has zero votes")
     vote_count_number += 1
     return
 
@@ -361,7 +378,7 @@ async def addplayer(ctx, new_player: discord.Member):
     global signup_list, live_players
     alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
     if new_player not in signup_list:
-        signup_list.appent(new_player)
+        signup_list.append(new_player)
         await new_player.add_roles(alive_role)
         live_players.append(new_player.name)
         await ctx.send(f'{new_player.name} has been added to the game!')
