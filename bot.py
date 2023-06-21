@@ -1,4 +1,5 @@
 import discord
+import os
 from discord.ext import commands
 import time as t
 import asyncio
@@ -7,15 +8,20 @@ from datetime import datetime, timedelta
 
 bot = commands.Bot(command_prefix="%", intents=discord.Intents.all())
 
-signups_open = False
-signup_list = []
+# Game Setup
+signups_open = False # Pregame
 vote_channel = None
 game_channel = None
-day_number = 0
-vote_count_number = 1
-votes = {} 
-day_end_time = None
 global_day_length = 1
+day_end_time = 1
+
+# Game Status
+day_number = 0
+signup_list = [] # Pre & Mid
+vote_count_number = 1
+# votes = {}
+votes = collections.OrderedDict()
+prev_vote = None
 live_players = []
 vote_since_last_count = 0
 start_time = datetime.now()
@@ -25,8 +31,11 @@ post_counts = collections.defaultdict(lambda: collections.defaultdict(int))
 
 @bot.event
 async def on_ready():
-    channel = bot.get_channel(1110103139065012244)
-    await channel.send('Bot is online!')
+    if (bot.get_channel(1110103139065012244)):
+        channel = bot.get_channel(1110103139065012244)
+        await channel.send('Bot is online!')
+    else:
+        print("Mustard")
 
 @bot.command()
 async def startsignup(ctx):
@@ -86,7 +95,7 @@ async def signuplist(ctx):
         
 @bot.command()
 async def startgame(ctx, game_channel_param: discord.TextChannel, vote_channel_param: discord.TextChannel, day_length: int = 1):
-    global signups_open, game_channel, vote_channel, global_day_length, live_players
+    global signups_open, game_channel, vote_channel, global_day_length, live_players, votes
     global_day_length = day_length
     if not signups_open:
         await ctx.send('Signups are currently closed.')
@@ -117,7 +126,7 @@ async def startgame(ctx, game_channel_param: discord.TextChannel, vote_channel_p
 
 @bot.command()
 async def vote(ctx, voted: discord.Member):
-    global votes, game_channel
+    global votes, game_channel, prev_vote
     if ctx.author not in signup_list or voted not in signup_list:
         await ctx.send("Either the voter or the voted player is not in the game.")
         return
@@ -127,30 +136,96 @@ async def vote(ctx, voted: discord.Member):
     if ctx.channel != game_channel:
         await ctx.send("You can only vote in the game chat.")
         return
+    # votes[ctx.author] = voted
+
+    # TEST
+    if ctx.author in votes:
+        prev_vote = (ctx.author, votes.pop(ctx.author))
     votes[ctx.author] = voted
-    await ctx.send(f"{ctx.author.name} has voted for {voted.name}.")
-    await bot.get_command("votecount").callback()
+    # END TEST
+
+    # await ctx.send(f"{ctx.author.name} has voted for {voted.name}.")
+    await ctx.send(f"{ctx.author.name} has voted for {votes[ctx.author].name}.") # TEST
+    await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False)
 
 @bot.command()
 async def unvote(ctx):
-    global votes
-    if ctx.author in votes:
-        del votes[ctx.author]
-        await ctx.send(f"{ctx.author.name} has unvoted.")
-        await bot.get_command("votecount").callback()
+    global votes, game_channel, prev_vote
     if ctx.channel != game_channel:
         await ctx.send("You can only vote in the game chat.")
         return
+    if ctx.author in votes:
+        # del votes[ctx.author]
+        prev_vote = (ctx.author, votes.pop(ctx.author)) # TEST
+        await ctx.send(f"{ctx.author.name} has unvoted.")
+        await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False)
+    # if ctx.channel != game_channel:
+    #    await ctx.send("You can only vote in the game chat.")
+    #    return
     else:
         await ctx.send("You haven't voted yet.")
 
+# CORRECTED VOTECOUNT TEST
 @bot.command()
+async def votecount(ctx, in_channel_request=True):
+    if in_channel_request is not True and in_channel_request is not False:
+        await ctx.send("You specified the wrong number of parameters, foolish mortal!  Try again or taste my wrath!")
+        return
+    global day_number, vote_count_number, vote_channel, game_channel, prev_vote
+    count = collections.OrderedDict()
+    votes_required = len(signup_list)//2 + 1
+    # Construct vote count for each player voted.  Should automatically be in order.
+    for voter, voted in votes.items():
+        if voted in count:
+            """print("This is gate 1")
+            print("This is count[voted]: ")
+            print(count[voted])
+            print("")"""
+            count[voted].append(voter)
+        else:
+            count[voted] = []
+            count[voted].append(voter)
+            """print("This is gate 2")
+            print("This is count[voted]: ")
+            print(count[voted])
+            print("")"""
+    # Construct message string
+    votecount_message = f"**Vote Count {day_number}.{vote_count_number}**\n\n"
+    endDay = False
+    for voted, voters in count.items():
+        remaining_votes = votes_required - len(voters)  # The number of votes remaining for a lynch
+        lynch_status = '**LYNCH**' if remaining_votes == 0 else f"L-{remaining_votes}"
+        voters_str = ', '.join([voter.name for voter in voters])
+        votecount_message += f"{voted.name}[{lynch_status}] - {voters_str}\n"
+        if lynch_status == '**LYNCH**':
+            endDay = True
+    not_voting = [player for player in signup_list if player not in votes.keys()]
+    votecount_message += f"\nNot Voting - {', '.join([player.name for player in not_voting])}"
+    votecount_message += f"\n\n*With {len(signup_list)} alive, it takes {votes_required} to lynch.*"
+    votecount_message += "\n" + "-" * 40
+    if endDay:
+        await bot.get_command("kill").callback(ctx, voted)
+        votecount_message += f"\nKilling {voted.name}"
+        alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
+        await game_channel.set_permissions(alive_role, send_messages=False)
+        await game_channel.send("The day has ended with a lynch.")
+    if in_channel_request:
+        await ctx.send(votecount_message)
+    else:
+        await vote_channel.send(votecount_message)
+    vote_count_number += 1
+    return
+
+
+# OLD ATTEMPT
+"""@bot.command()
 async def votecount(ctx=None):
     global day_number, vote_count_number, vote_channel, game_channel, prev_votes
     count = collections.OrderedDict()
     votes_required = len(signup_list)//2 + 1
     for voter, vote_info in votes.items():
-        voted = vote_info['voted'] # Extract the user voted for
+        # voted = vote_info['voted'] # Extract the user voted for
+        voted = vote_info
         if voted in count:
             count[voted].append(voter)
         else:
@@ -178,7 +253,7 @@ async def votecount(ctx=None):
     vote_count_number += 1
 
     # Update the prev_votes dictionary at the end
-    prev_votes = {voter: {'voted': vote_info['voted']} for voter, vote_info in votes.items()}
+    prev_votes = {voter: {'voted': vote_info['voted']} for voter, vote_info in votes.items()}"""
 
 @bot.command()
 async def newday(ctx, day_length: int = 1):
@@ -237,6 +312,8 @@ async def kill(ctx, member: discord.Member):
         signup_list.remove(member)
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
+        if dead_role is None:
+            dead_role = await ctx.guild.create_role(name="Dead")
         if alive_role in member.roles:
             await member.remove_roles(alive_role)
         if dead_role not in member.roles:
@@ -276,7 +353,7 @@ async def rolelist(ctx):
     
 @bot.command()
 @commands.has_permissions(administrator=True)
-async def addplayer(ctx, new_player: discord:Member):
+async def addplayer(ctx, new_player: discord.Member):
     global signup_list, live_players
     alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
     if new_player not in signup_list:
@@ -292,7 +369,7 @@ async def addplayer(ctx, new_player: discord:Member):
 async def swapplayer(ctx, existing_player: discord.Member, new_player: discord.Member):
     global signup_list, live_players
     if existing_player in signup_list:
-        if new_player not in signup_list
+        if new_player not in signup_list:
             index = signup_list.index(existing_player)
             signup_list[index] = new_player
             if existing_player.name in live_players:
@@ -333,7 +410,7 @@ async def periodic_votecount_check():
         # Sleep for 10 seconds before checking again
         await asyncio.sleep(10)
         
-bot.loop.create_task(periodic_votecount_check())
+#bot.loop.create_task(periodic_votecount_check())
 
 
 
@@ -628,5 +705,5 @@ roles = {
 
 # Repository of Modifiers
 
-
-bot.run('')
+# TEST BOT KEY!
+bot.run('MTEyMDE2MjY1OTE3NDcyNzgwMg.Gt799o.TvjSTWdpToy1EL6j9Ve6hwGODTGbBI5LVNk4d0')
