@@ -146,7 +146,7 @@ async def vote(ctx, voted: discord.Member):
 
     # await ctx.send(f"{ctx.author.name} has voted for {voted.name}.")
     await ctx.send(f"{ctx.author.name} has voted for {votes[ctx.author].name}.") # TEST
-    await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False)
+    await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False, vote_target=voted)
 
 @bot.command()
 async def unvote(ctx):
@@ -158,7 +158,7 @@ async def unvote(ctx):
         # del votes[ctx.author]
         prev_vote = (ctx.author, votes.pop(ctx.author)) # TEST
         await ctx.send(f"{ctx.author.name} has unvoted.")
-        await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False)
+        await bot.get_command("votecount").callback(ctx = ctx, in_channel_request=False, vote_target=prev_vote[1])
     # if ctx.channel != game_channel:
     #    await ctx.send("You can only vote in the game chat.")
     #    return
@@ -167,7 +167,7 @@ async def unvote(ctx):
 
 # CORRECTED VOTECOUNT TEST
 @bot.command()
-async def votecount(ctx, in_channel_request=True):
+async def votecount(ctx, in_channel_request=True, vote_target=None):
     if in_channel_request is not True and in_channel_request is not False:
         await ctx.send("You specified the wrong number of parameters, foolish mortal!  Try again or taste my wrath!")
         return
@@ -199,6 +199,8 @@ async def votecount(ctx, in_channel_request=True):
         votecount_message += f"{voted.name}[{lynch_status}] - {voters_str}\n"
         if lynch_status == '**LYNCH**':
             endDay = True
+        if voted is vote_target:
+            await game_channel.send(f"{voted.name} is {lynch_status}")
     not_voting = [player for player in signup_list if player not in votes.keys()]
     votecount_message += f"\nNot Voting - {', '.join([player.name for player in not_voting])}"
     votecount_message += f"\n\n*With {len(signup_list)} alive, it takes {votes_required} to lynch.*"
@@ -213,6 +215,8 @@ async def votecount(ctx, in_channel_request=True):
         await ctx.send(votecount_message)
     else:
         await vote_channel.send(votecount_message)
+    if vote_target is not None and vote_target not in count:
+        await game_channel.send(f"{vote_target.name} has zero votes")
     vote_count_number += 1
     return
 
@@ -706,4 +710,4 @@ roles = {
 # Repository of Modifiers
 
 # TEST BOT KEY!
-bot.run('')
+bot.run('MTEyMDE2MjY1OTE3NDcyNzgwMg.Gt799o.TvjSTWdpToy1EL6j9Ve6hwGODTGbBI5LVNk4d0')
