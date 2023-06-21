@@ -19,13 +19,9 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 6) fallout thread
 7) spec chat thread
 
--When bot reports "User has voted for Aso" add "Aso is now L-1" or whatever count is relevent.
-
 -Automate user post search in game thread somehow?
 
 # BUGS (Bunny):
-
--The bot currently reacts to all unvotes with a message as if the unvoter were not voting anyone to begin with.  It still correctly removes the vote at least.
 
 -The bot does not reset back to Day Phase 1 after the game ends and a new game starts.  Observe that ⁠33-vote-count starts on Day 2.
 
@@ -33,18 +29,12 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Bot can't handle underscores and certain usernames.
 
--Bot does not post final vote count when lynch is achieved.
-
 -Day end methods interfere with each other, needs a lot of debugging
 
 -Are all moderater commands admin only? (No) 
 
 # IN-TESTING-PHASE:
 1) Features, changes, need testing when bot is free:
-
-[implemented] - Bold the votecount change
-
-[implemented] - Link the votecount to the message of vote
 
 [implemented] - Post a votecount in game chat every 10 votes
 
@@ -55,10 +45,18 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 2) Bugs - need testing when bot is free::
 
+GEO (June 21 2023)
+[implemented] - The bot currently reacts to all unvotes with a message as if the unvoter were not voting anyone to begin with.  It still correctly removes the vote at least.
+
+[implemented] - When bot reports "User has voted for Aso" add "Aso is now L-1" or whatever count is relevent.
+
+[implemented] - Bot does not post final vote count when lynch is achieved.
+
+[implemented] - Bold the votecount change
+
+[implemented] - Link the votecount to the message of vote
+
 [implemented] - Bot doesn't track the order of which votes are placed
-
-
-
 
 # COMPLETED:
 
