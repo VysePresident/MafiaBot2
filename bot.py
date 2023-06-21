@@ -727,4 +727,4 @@ roles = {
 # Repository of Modifiers
 
 # TEST BOT KEY!
-bot.run('MTEyMDE2MjY1OTE3NDcyNzgwMg.Gt799o.TvjSTWdpToy1EL6j9Ve6hwGODTGbBI5LVNk4d0')
+bot.run('')
