@@ -195,7 +195,7 @@ async def votecount(ctx, in_channel_request=True, vote_change=None):
             print(count[voted])
             print("")"""
     # Construct message string
-    votecount_message = f"**Vote Count {day_number}.{vote_count_number}**\n\n"
+    votecount_message = f"**Vote Count {day_number}.{vote_count_number} - **{ctx.message.jump_url}\n\n"
     endDay = False
     for voted, voters in count.items():
         for voter in voters:
@@ -727,4 +727,4 @@ roles = {
 # Repository of Modifiers
 
 # TEST BOT KEY!
-bot.run('')
+bot.run('MTEyMDE2MjY1OTE3NDcyNzgwMg.Gt799o.TvjSTWdpToy1EL6j9Ve6hwGODTGbBI5LVNk4d0')
