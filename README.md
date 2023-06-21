@@ -45,7 +45,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 2) Bugs - need testing when bot is free::
 
-GEO (June 21 2023)
+GEO (June 21 2023):
+
 [implemented] - The bot currently reacts to all unvotes with a message as if the unvoter were not voting anyone to begin with.  It still correctly removes the vote at least.
 
 [implemented] - When bot reports "User has voted for Aso" add "Aso is now L-1" or whatever count is relevent.
