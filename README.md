@@ -35,6 +35,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Requesting a votecount in-thread increments the number.
 
+-(Logged June 23 2023) - Bot doesn't use dashes for the "start of day" count.  Add 40 dashes.
+
 # IN-TESTING-PHASE:
 1) Features, changes, need testing when bot is free:
 
