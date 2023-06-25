@@ -49,7 +49,7 @@ GEO (June 25 2023) Listed:
 
 [implemented] Bot now uses dashes for the "start of day" count consistent with all other vote counts.
 
-[implemented] Requesting a votecount in-thread increments the number.
+[implemented] Requesting a votecount in-thread no longer increments the number.
 
 GEO (June 21 2023) Listed:
 
