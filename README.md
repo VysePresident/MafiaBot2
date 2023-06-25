@@ -35,10 +35,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Are all moderater commands admin only? (No) 
 
--Requesting a votecount in-thread increments the number.
-
--(Logged June 23 2023) - Bot doesn't use dashes for the "start of day" count.  Add 40 dashes.
-
 # IN-TESTING-PHASE:
 1) Features, changes, need testing when bot is free:
 
@@ -49,6 +45,11 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 [implemented] - Allow player swaps mid-game
 
+GEO (June 25 2023) Listed:
+
+[implemented] Bot now uses dashes for the "start of day" count consistent with all other vote counts.
+
+[implemented] Requesting a votecount in-thread increments the number.
 
 GEO (June 21 2023) Listed:
 
