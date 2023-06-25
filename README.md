@@ -21,6 +21,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Automate user post search in game thread somehow?
 
+-Clean up roles (Alive, Dead, Spec, Spoiled) after game ends.  Should be its own function, which is called when %endgame is called.
+
 # BUGS (Bunny):
 
 -The bot does not reset back to Day Phase 1 after the game ends and a new game starts.  Observe that ⁠33-vote-count starts on Day 2.
