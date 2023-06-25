@@ -23,3 +23,5 @@
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
+test_token.py
+__pycache__/test_token.cpython-311.pyc
