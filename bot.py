@@ -114,7 +114,7 @@ async def startgame(ctx, game_channel_param: discord.TextChannel, vote_channel_p
     await game_channel.send(f'The game has started with the following players:\n{game_players}')
     
     vote_message = f'Day {day_number+1} votes will be displayed here. Required votes to eliminate a player: {len(signup_list)//2 + 1}'
-    vote_message += "\n" + "-" * 40
+
     await vote_channel.send(vote_message)
 
     await newday.callback(ctx, day_length)
@@ -133,10 +133,10 @@ async def vote(ctx, voted: discord.Member):
         return
 
     if ctx.author in votes:
-        print("Gate 1")
+        # print("Gate Change Vote")
         prev_vote = (ctx.author, votes.pop(ctx.author))
     else:
-        print("Gate 2")
+        # print("Gate Wasn't Voting")
         prev_vote = (ctx.author, "not voting")
     votes[ctx.author] = voted
 
@@ -227,7 +227,7 @@ async def newday(ctx, day_length: int = 1):
     await game_channel.set_permissions(alive_role, send_messages=True)
 
     votecount_message = f"**Vote Count {day_number}.{vote_count_number}**\n\nNo votes yet."
-    votecount_message += "/n" + (40 * "-")
+    votecount_message += "\n" + (40 * "-")
     await vote_channel.send(votecount_message)
 
     await game_channel.send(f"Day {day_number} has begun. It will end in {day_length} days.")
