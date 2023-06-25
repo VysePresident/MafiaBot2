@@ -213,7 +213,8 @@ async def votecount(ctx, in_channel_request=True, vote_change=None):
         await vote_channel.send(votecount_message)
     if vote_change is not None and vote_change not in count:
         await game_channel.send(f"{vote_change.name} has zero votes")
-    vote_count_number += 1
+    if in_channel_request:
+        vote_count_number += 1
     return
 
 @bot.command()
