@@ -37,6 +37,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -(Logged 6/25/23) - Playerlist is not cleared when using %endgame
 
+-(Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
+
 # IN-TESTING-PHASE:
 1) Features, changes, need testing when bot is free:
 
