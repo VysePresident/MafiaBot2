@@ -150,44 +150,6 @@ async def addplayer(ctx, new_player: discord.Member):
         await ctx.send(f'{new_player.name} is already in the game!')
 """
 
-"""
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def swapplayer(ctx, existing_player: discord.Member, new_player: discord.Member):
-    if existing_player in Config.signup_list:
-        if new_player not in Config.signup_list:
-            index = Config.signup_list.index(existing_player)
-            Config.signup_list[index] = new_player
-            if existing_player.name in Config.live_players:
-                Config.live_players.remove(existing_player.name)
-            Config.live_players.remove(new_player.name)
-            alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-            await existing_player.remove_roles(alive_role)
-            await new_player.add_roles(alive_role)
-            await(f'{existing_player.name} has been replaced with {new_player.name}.')
-        else:
-            await(f'{new_player.name} is already in the game.')
-    else:
-        await ctx.send(f'{existing_player.name} is not in the game.')
-"""
-
-"""
-async def changedaylength(ctx, *args):
-    # global global_day_length
-    day_length_in_seconds = 0
-    for arg in args:
-        if arg[-1] == 'd':
-            day_length_in_seconds += int(arg[:-1]) * 60 * 60 * 24
-        elif arg[-1] == 'h':
-            day_length_in_seconds += int(arg[:-1]) * 60 * 60
-        elif arg[-1] == 'm':
-            day_length_in_seconds += int(arg[:-1]) * 60
-        else:
-            await ctx.send(f'Invalid time format: {arg}. Will only accept these: "d/h/m".')
-    Config.global_day_length = day_length_in_seconds / (24*60*60)
-    await ctx.send(f'The day length has been changed to {Config.global_day_length} days.')
-"""
-
 # Command is not used yet.  Review later.
 """
 async def periodic_votecount_check():
