@@ -23,6 +23,12 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Clean up roles (Alive, Dead, Spec, Spoiled) after game ends.  Should be its own function, which is called when %endgame is called.
 
+-Moderator should be able to change the vote-count thread.
+
+-Moderator should be able to change the game thread.
+
+-The %changedaylength() command should be possible to adjust in d/h/m simultaneously.  It should only use integer values.
+
 # BUGS (Bunny):
 
 -The bot does not reset back to Day Phase 1 after the game ends and a new game starts.  Observe that ⁠33-vote-count starts on Day 2.
@@ -49,6 +55,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 [implemented] - Allow player swaps mid-game
 
+GEO (June 26 2023) Listed:
+
+[implemented] Fixed bug where changedaylength command would not change the length of the current day.
+
 GEO (June 25 2023) Listed:
 
 [implemented] Bot now uses dashes for the "start of day" count consistent with all other vote counts.
@@ -68,6 +78,7 @@ GEO (June 21 2023) Listed:
 [implemented] - Link the votecount to the message of vote
 
 [implemented] - Bot doesn't track the order of which votes are placed
+
 
 # COMPLETED:
 
