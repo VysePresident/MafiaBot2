@@ -21,9 +21,9 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Automate user post search in game thread somehow?
 
--Clean up roles (Alive, Dead, Spec, Spoiled) after game ends.  Should be its own function, which is called when %endgame is called.
-
 -The %changedaylength() command should be possible to adjust in d/h/m simultaneously.  It should only use integer values.
+
+-Post a votecount in game chat every 10 votes
 
 # BUGS (Bunny):
 
@@ -36,16 +36,20 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 -(Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
 
 # IN-TESTING-PHASE:
-1) Features, changes, need testing when bot is free:
+1) Features, changes, bug-fixes that need testing when bot is free:
 
-[implemented] - Post a votecount in game chat every 10 votes
+
+# COMPLETED:
 
 [implemented] - Allow changes to day length when day is active
 *(needs more testing, likely will need to make a 2nd day_length int that gets reverted after a day)*
 
 [implemented] - Allow player swaps mid-game
 
+
 GEO (June 26 2023) Listed:
+
+[implemented] Clean up roles (Alive, Dead, Spec, Spoiled) after game ends.  Should be its own function, which is called when %endgame is called.
 
 [implemented] - Moderator should be able to change the vote-count thread.
 
@@ -60,6 +64,7 @@ GEO (June 25 2023) Listed:
 [implemented] Bot now uses dashes for the "start of day" count consistent with all other vote counts.
 
 [implemented] Requesting a votecount in-thread no longer increments the number.
+
 
 GEO (June 21 2023) Listed:
 
@@ -76,5 +81,5 @@ GEO (June 21 2023) Listed:
 [implemented] - Bot doesn't track the order of which votes are placed
 
 
-# COMPLETED:
+
 
