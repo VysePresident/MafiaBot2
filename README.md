@@ -27,15 +27,9 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # BUGS (Bunny):
 
--The bot does not reset back to Day Phase 1 after the game ends and a new game starts.  Observe that ⁠33-vote-count starts on Day 2.
-
--The bot ended Day early once - I suspect that this occured at the time the new Day I started after skelet replaced in would have ended. 
-
 -Bot can't handle underscores and certain usernames.
 
--Day end methods interfere with each other, needs a lot of debugging
-
--Are all moderater commands admin only? (No) 
+-Are all moderater commands admin only? (No - %kill needs some work) 
 
 -(Logged 6/25/23) - Playerlist is not cleared when using %endgame
 
