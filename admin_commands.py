@@ -191,5 +191,20 @@ class AdminCommands(commands.Cog):
     async def modkill(self, ctx, member: discord.Member):
         await self.bot.kill(ctx, member)
 
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def changevotethread(self, ctx, new_vote_channel: discord.TextChannel):
+        Config.vote_channel = new_vote_channel
+        await ctx.send(f"The vote channel is now {Config.vote_channel}")
+        await Config.vote_channel.send("This is now the vote channel")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def changegamethread(self, ctx, new_game_channel: discord.TextChannel):
+        Config.game_channel = new_game_channel
+        await ctx.send(f"The game channel is now {Config.game_channel}")
+        await Config.game_channel.send("This is now the game channel")
+
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
+
