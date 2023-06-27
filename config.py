@@ -22,7 +22,7 @@ class Config():
     current_vote = None  # Unused atm
     live_players = []
     vote_since_last_count = 0
-    start_time = datetime.now()  # Unused atm
+    # start_time = datetime.now()  # Unused atm
 
     abstained_players = []
 
