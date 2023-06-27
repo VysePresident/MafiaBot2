@@ -122,6 +122,33 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def endgame(self, ctx):
+        # Clear all roles:
+        alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
+        if alive_role is None:
+            alive_role = await ctx.guild.create_role(name="Alive")
+
+        dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
+        if dead_role is None:
+            dead_role = await ctx.guild.create_role(name="Dead")
+
+        spec_role = discord.utils.get(ctx.guild.roles, name="Spectator")
+        if spec_role is None:
+            spec_role = await ctx.guild.create_role(name="Spectator")
+
+        spoiled_role = discord.utils.get(ctx.guild.roles, name="Spoilers")
+        if spoiled_role is None:
+            spoiled_role = await ctx.guild.create_role(name="Spoilers")
+
+        for member in ctx.guild.members:
+            if alive_role in member.roles:
+                await member.remove_roles(alive_role)
+            if dead_role in member.roles:
+                await member.remove_roles(dead_role)
+            if spec_role in member.roles:
+                await member.remove_roles(spec_role)
+            if spoiled_role in member.roles:
+                await member.remove_roles(spoiled_role)
+
         # Reset all config values
         ####
         Config.signups_open = False  # Pregame
@@ -141,7 +168,7 @@ class AdminCommands(commands.Cog):
         Config.current_vote = None  # Unused atm
         Config.live_players = []
         Config.vote_since_last_count = 0
-        Config.start_time = datetime.now()  # Unused atm
+        # Config.start_time = datetime.now()  # Unused atm
 
         Config.abstained_players = []
 
