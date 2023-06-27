@@ -2,6 +2,8 @@ import discord
 import time as t
 from discord.ext import commands
 import asyncio
+import collections
+import datetime
 
 from config import Config
 
@@ -120,9 +122,32 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def endgame(self, ctx):
-        # current_day = 0  # Unnecessary code?
-        Config.votes = {}
+        # Reset all config values
+        ####
+        Config.signups_open = False  # Pregame
+        Config.vote_channel = None
+        Config.game_channel = None
         Config.global_day_length = 1
+        Config.day_end_time = 1
+
+        Config.day_end_task_object = None
+
+        # Game Status
+        Config.day_number = 0
+        Config.signup_list = []  # Pre & Mid
+        Config.vote_count_number = 1
+        Config.votes = collections.OrderedDict()
+        Config.prev_vote = None
+        Config.current_vote = None  # Unused atm
+        Config.live_players = []
+        Config.vote_since_last_count = 0
+        Config.start_time = datetime.now()  # Unused atm
+
+        Config.abstained_players = []
+
+        # Post count collection
+        Config.post_counts = collections.defaultdict(lambda: collections.defaultdict(int))
+
         await ctx.send("The game has ended.")
 
     @commands.command()
