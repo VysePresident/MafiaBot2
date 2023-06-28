@@ -3,6 +3,7 @@ import time as t
 from discord.ext import commands
 import asyncio
 import collections
+import re
 import datetime
 
 from config import Config
@@ -81,7 +82,8 @@ class AdminCommands(commands.Cog):
         game_players = "\n".join([user.mention for user in Config.signup_list])
         await Config.game_channel.send(f'The game has started with the following players:\n{game_players}')
 
-        vote_message = f'Day {Config.day_number + 1} votes will be displayed here. Required votes to eliminate a player: {len(Config.signup_list) // 2 + 1}'
+        vote_message = f'Day {Config.day_number + 1} votes will be displayed here. ' \
+                       f'Required votes to eliminate a player: {len(Config.signup_list) // 2 + 1}'
 
         await Config.vote_channel.send(vote_message)
 
@@ -122,7 +124,8 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def endgame(self, ctx):
-        # Clear all roles:
+        
+        # Collect roles
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         if alive_role is None:
             alive_role = await ctx.guild.create_role(name="Alive")
@@ -139,6 +142,22 @@ class AdminCommands(commands.Cog):
         if spoiled_role is None:
             spoiled_role = await ctx.guild.create_role(name="Spoilers")
 
+        # Adjust channel permissions to end game state.
+        game_category = Config.game_channel.category
+        game_guild = Config.game_channel.guild
+        game_category.overwrites.clear() # set_permissions(game_category, overwrite=None)
+
+        await game_category.set_permissions(game_guild.default_role, view_channel=True, send_messages=False)
+        
+        for channel in game_category.channels:
+            await channel.edit(sync_permissions=True)
+            if channel.name == "fallout":
+                await channel.set_permissions(game_guild.default_role, send_messages=True)
+                await channel.send(f"{alive_role.mention} {dead_role.mention} the game has ended!\n"
+                                   f"You may discuss the results here!\n"
+                                   f"Thank you for playing and we hope you had fun!")
+
+        # Clear all roles:
         for member in ctx.guild.members:
             if alive_role in member.roles:
                 await member.remove_roles(alive_role)
@@ -256,6 +275,126 @@ class AdminCommands(commands.Cog):
         Config.game_channel = new_game_channel
         await ctx.send(f"The game channel is now {Config.game_channel}")
         await Config.game_channel.send("This is now the game channel")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def gamesetup(self, ctx, game_name):
+
+        # Catch roles
+        alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
+        dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
+        spec_role = discord.utils.get(ctx.guild.roles, name="Spectator")
+        spoil_role = discord.utils.get(ctx.guild.roles, name="Spoilers")
+
+        # Initiate title segments
+        title_start = "GAME "
+        current_game_number = None
+        current_position_level = None
+        title_break = ": "
+        PERMISSION_DECREMENT = 1
+        # PERMISSION_DECREMENT = .0000001
+
+        # Find game number and prepare to rearrange categories
+        list_of_categories_to_move = []
+        guild_categories = ctx.guild.categories
+        for guild_category in guild_categories:
+            print(f"This is category name: {guild_category.name}")
+            print(f"This is category position: {guild_category.position}")
+            game_title = re.match(r"(?i)game\s(\d+)", guild_category.name)
+            if game_title and current_game_number is None:
+                game_number = game_title.group(1)
+                current_game_number = str(int(game_number) + 1)
+                current_position_level = int(guild_category.position - 1)
+                # last_game_new_pos = guild_category.position + 1
+                # print(f"This is last_game_new_pos: {last_game_new_pos}")
+                list_of_categories_to_move.append(guild_category)
+                print("MISSION SUCCESS!")
+                print(f"MOVING TO BUMP LIST!")
+                print(f"This is current_game_number: {current_game_number}")
+                print(f"This is current_position_level: {current_position_level}")
+                print(f"This is guild_category.position: {guild_category.position}")
+            elif current_game_number is not None:
+                print(f"MOVING TO BUMP LIST!")
+                list_of_categories_to_move.append(guild_category)
+            print("")
+
+        # Create category
+        category_name = title_start + current_game_number + title_break + game_name
+        category = await ctx.guild.create_category(category_name, position=int(current_position_level))
+        await category.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
+        list_of_categories_to_move.append(category)
+
+        for guild_category in list_of_categories_to_move:
+            await guild_category.edit(position=(int(guild_category.position + 1)))
+
+        # Create channels
+        channel_break = "-"
+        # Main game channel.  Everyone can view, only alive can speak.
+        channel_name = current_game_number + channel_break + "game-chat"
+        game_channel = await category.create_text_channel(channel_name)
+        await game_channel.set_permissions(ctx.guild.default_role, view_channel=True, send_messages=False)
+        await game_channel.set_permissions(alive_role, send_messages=True)
+        await game_channel.set_permissions(dead_role, send_messages=False)
+
+        # Playerlist channel - Everyone views, nobody speaks.
+        channel_name = current_game_number + channel_break + "playerlist"
+        playerlist_channel = await category.create_text_channel(channel_name)
+        await playerlist_channel.set_permissions(ctx.guild.default_role, view_channel=True, send_messages=False)
+
+        # Voting channel - Everyone views, nobody speaks.
+        channel_name = current_game_number + channel_break + "vote-count"
+        vote_channel = await category.create_text_channel(channel_name)
+        await vote_channel.set_permissions(ctx.guild.default_role, view_channel=True, send_messages=False)
+
+        # Scum channel. Only specific players can use/view.  Only spoilers can view.
+        channel_name = current_game_number + channel_break + "mafia-chat"
+        mafia_channel = await category.create_text_channel(channel_name)
+        await mafia_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
+        await mafia_channel.set_permissions(spoil_role, view_channel=True, send_messages=False)
+
+        # Spec chat - only spectators can see.
+        channel_name = current_game_number + channel_break + "spec-chat"
+        spec_channel = await category.create_text_channel(channel_name)
+        await spec_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
+        await spec_channel.set_permissions(spec_role, view_channel=True, send_messages=False)
+
+        # Mod thread - only spoiled can see.
+        channel_name = current_game_number + channel_break + "mod-thread"
+        mod_channel = await category.create_text_channel(channel_name)
+        await mod_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
+        await mod_channel.set_permissions(spoil_role, view_channel=True, send_messages=False)
+
+        # Spoiled chat - only spoiled can see.
+        channel_name = current_game_number + channel_break + "spoiled-spec"
+        spoiled_channel = await category.create_text_channel(channel_name)
+        await spoiled_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
+        await spoiled_channel.set_permissions(spoil_role, view_channel=True, send_messages=False)
+
+        # Fallout chat - nobody can see until %endgame.
+        channel_name = current_game_number + channel_break + "fallout"
+        fallout_channel = await category.create_text_channel(channel_name)
+        await fallout_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
+
+    # BUG TESTING COMMAND **ONLY**
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def clearcat(self, ctx, entered_channel: discord.TextChannel):
+        category = entered_channel.category
+        for channel in category.channels:
+            await channel.delete()
+        await category.delete()
+        await ctx.send(f"The category containing {entered_channel} and all internal channels have been deleted!")
+
+    # BUG TESTING COMMAND **ONLY**
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def catpos(self, ctx):
+        for category in ctx.guild.categories:
+            print(f"This is category.name: {category.name}")
+            print(f"This is category.position: {category.position}")
+            print(f"---")
+        print("\n")
+
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
