@@ -10,15 +10,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 ----POSTING RESTRICTION SHOULD BE ADDED/REMOVED AT ARBITRARY TIME IF MOD SETS IT TO DO SO.
 
--Set up a category with standard channels and permissions for a new game including: 
-1) game-thread (All can see, alive can't post to start but can be enabled when Day starts.) 
-2) playerlist thread 
-3) vote-count thread (visible to everyone, no posting perms)
-4) mafia-chat (hidden - mod will update perms manually as per norm.)
-5) mod-thread (hidden)
-6) fallout thread
-7) spec chat thread
-
 -Automate user post search in game thread somehow?
 
 -The %changedaylength() command should be possible to adjust in d/h/m simultaneously.  It should only use integer values.
@@ -45,6 +36,18 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 *(needs more testing, likely will need to make a 2nd day_length int that gets reverted after a day)*
 
 [implemented] - Allow player swaps mid-game
+
+
+GEO (June 27 2023) Listed:
+
+[implemented] - Set up a category with standard channels and permissions for a new game including: 
+1) game-thread (All can see, alive can't post to start but can be enabled when Day starts.) 
+2) playerlist thread 
+3) vote-count thread (visible to everyone, no posting perms)
+4) mafia-chat (hidden - mod will update perms manually as per norm.)
+5) mod-thread (hidden)
+6) fallout thread
+7) spec chat thread
 
 
 GEO (June 26 2023) Listed:
