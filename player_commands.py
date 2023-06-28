@@ -69,7 +69,7 @@ class PlayerCommands(commands.Cog):
             Config.prev_vote = (ctx.author, Config.votes.pop(ctx.author))  # TEST
             await ctx.send(f"{ctx.author.name} has unvoted.")
             await self.bot.get_command("votecount").callback(ctx=ctx, in_channel_request=False,
-                                                        vote_change=Config.prev_vote[1])
+                                                        vote_change=Config.prev_vote[1], is_unvote=True)
         else:
             await ctx.send("You haven't voted yet.")
         return

@@ -24,6 +24,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -(Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
 
+-Logged(6/28/23) Need to completely remove time (and send an appropriate message) when thread ends.  Very minor.
+
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
 

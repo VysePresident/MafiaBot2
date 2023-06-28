@@ -42,7 +42,7 @@ async def on_ready():
         print("Mustard")
 
 @bot.command()
-async def votecount(ctx, in_channel_request=True, vote_change=None):
+async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=False):
     if in_channel_request is not True and in_channel_request is not False:
         await ctx.send("You specified the wrong number of parameters, foolish mortal!  Try again or taste my wrath!")
         return
@@ -76,6 +76,8 @@ async def votecount(ctx, in_channel_request=True, vote_change=None):
         votecount_message += f"\nNot Voting - (None)"
     if isinstance(Config.prev_vote[1], str):
         votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} switched from {Config.prev_vote[1]} to {voted.name}*"
+    elif is_unvote:
+        votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} has unvoted {Config.prev_vote[1]}*"
     else:
         votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} switched from {Config.prev_vote[1].name} to {voted.name}*"
     votecount_message += f"\n\n*With {len(Config.signup_list)} alive, it takes {votes_required} to lynch.*"
@@ -99,7 +101,7 @@ async def votecount(ctx, in_channel_request=True, vote_change=None):
     return
 
 
-@commands.command()
+# @commands.command()
 # @commands.has_permissions(Administrator=True)
 async def kill(ctx, member: discord.Member):
     if member.name in Config.live_players:
@@ -107,6 +109,7 @@ async def kill(ctx, member: discord.Member):
         Config.signup_list.remove(member)
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
+        Config.day_end_task_object.cancel()  # END DAY PHASE
         if dead_role is None:
             dead_role = await ctx.guild.create_role(name="Dead")
         if alive_role in member.roles:
