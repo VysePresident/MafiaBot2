@@ -43,7 +43,6 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def unforcesignup(self, ctx, user: discord.Member):
-        # global signups_open
         print("This is signups_open in unforcesignup(): " + str(Config.signups_open))
         if user in Config.signup_list:
             Config.signup_list.remove(user)
