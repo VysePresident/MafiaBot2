@@ -43,7 +43,6 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def unforcesignup(self, ctx, user: discord.Member):
-        # global signups_open
         print("This is signups_open in unforcesignup(): " + str(Config.signups_open))
         if user in Config.signup_list:
             Config.signup_list.remove(user)
@@ -148,12 +147,15 @@ class AdminCommands(commands.Cog):
         game_category.overwrites.clear() # set_permissions(game_category, overwrite=None)
 
         await game_category.set_permissions(game_guild.default_role, view_channel=True, send_messages=False)
-        
+
+        pattern = r"\d+-.*fallout.*"
         for channel in game_category.channels:
             await channel.edit(sync_permissions=True)
-            if channel.name == "fallout":
+            if re.match(pattern, channel.name):
+                print("MISSION SUCCESS - Fallout matched")
                 await channel.set_permissions(game_guild.default_role, send_messages=True)
-                await channel.send(f"{alive_role.mention} {dead_role.mention} the game has ended!\n"
+                await channel.send(f"{alive_role.mention} {dead_role.mention} the game has ended"
+                                   f" and all channels have now been locked!\n"
                                    f"You may discuss the results here!\n"
                                    f"Thank you for playing and we hope you had fun!")
 
@@ -260,7 +262,21 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def modkill(self, ctx, member: discord.Member):
-        await self.bot.kill(ctx, member)
+        if member.name in Config.live_players:
+            Config.live_players.remove(member.name)
+            Config.signup_list.remove(member)
+            alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
+            dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
+            if dead_role is None:
+                dead_role = await ctx.guild.create_role(name="Dead")
+            if alive_role in member.roles:
+                await member.remove_roles(alive_role)
+            if dead_role not in member.roles:
+                await member.add_roles(dead_role)
+            await ctx.send(f"{member.name} has been removed from the game.")
+        else:
+            await ctx.send(f"{member.name} is not in the game or already removed.")
+        # await self.bot.kill(ctx, member)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -329,11 +345,11 @@ class AdminCommands(commands.Cog):
 
         # Create channels
         channel_break = "-"
-        # Main game channel.  Everyone can view, only alive can speak.
+        # Main game channel.  Everyone can view, nobody can speak to start.
         channel_name = current_game_number + channel_break + "game-chat"
         game_channel = await category.create_text_channel(channel_name)
         await game_channel.set_permissions(ctx.guild.default_role, view_channel=True, send_messages=False)
-        await game_channel.set_permissions(alive_role, send_messages=True)
+        # await game_channel.set_permissions(alive_role, send_messages=True)
         await game_channel.set_permissions(dead_role, send_messages=False)
 
         # Playerlist channel - Everyone views, nobody speaks.
