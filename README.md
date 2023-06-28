@@ -22,8 +22,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Are all moderater commands admin only? (No - %kill needs some work) 
 
--(Logged 6/25/23) - Playerlist is not cleared when using %endgame
-
 -(Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
 
 # IN-TESTING-PHASE:
@@ -57,6 +55,8 @@ GEO (June 26 2023) Listed:
 [implemented] - Moderator should be able to change the vote-count thread.
 
 [implemented] - Moderator should be able to change the game thread.
+
+[bugfix] - Playerlist is not cleared when using %endgame
 
 GEO (June 26 2023) Listed:
 
