@@ -392,24 +392,24 @@ class AdminCommands(commands.Cog):
         await fallout_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
 
     # BUG TESTING COMMAND **ONLY**
-    @commands.command()
+    """@commands.command()
     @commands.has_permissions(administrator=True)
     async def clearcat(self, ctx, entered_channel: discord.TextChannel):
         category = entered_channel.category
         for channel in category.channels:
             await channel.delete()
         await category.delete()
-        await ctx.send(f"The category containing {entered_channel} and all internal channels have been deleted!")
+        await ctx.send(f"The category containing {entered_channel} and all internal channels have been deleted!")"""
 
     # BUG TESTING COMMAND **ONLY**
-    @commands.command()
+    """@commands.command()
     @commands.has_permissions(administrator=True)
     async def catpos(self, ctx):
         for category in ctx.guild.categories:
             print(f"This is category.name: {category.name}")
             print(f"This is category.position: {category.position}")
             print(f"---")
-        print("\n")
+        print("\n")"""
 
 
 async def setup(bot):
