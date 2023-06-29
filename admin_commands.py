@@ -391,6 +391,12 @@ class AdminCommands(commands.Cog):
         fallout_channel = await category.create_text_channel(channel_name)
         await fallout_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
 
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def changeday(self, ctx, day: int):
+        Config.day_number = day
+        await ctx.send(f"The new day is now {Config.day_number}")
+
     # BUG TESTING COMMAND **ONLY**
     """@commands.command()
     @commands.has_permissions(administrator=True)
