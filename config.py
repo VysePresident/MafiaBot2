@@ -16,7 +16,6 @@ class Config():
     day_number = 0
     signup_list = []  # Pre & Mid
     vote_count_number = 1
-    # votes = {}
     votes = collections.OrderedDict()
     prev_vote = None
     current_vote = None  # Unused atm
