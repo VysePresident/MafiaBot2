@@ -16,6 +16,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Post a votecount in game chat every 10 votes
 
+-Use the End of Day Timer
+
+-Link vote-post in game chat to the votecount that results.
+
 # BUGS (Bunny):
 
 -Bot can't handle underscores and certain usernames.
