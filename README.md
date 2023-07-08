@@ -28,6 +28,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -The bot should be able to track edits/deletions efficiently only from players with the "ALIVE" role in the game_thread.  
 
+-Track post counts and create a command that lists the number of posts from each user in the past **24 hours** (we can also allow the mod to adjust this time later).
+
+-Add a prod command possibly?  Consider user convenience when making it, but also the necessity of V/LA (Legitimate absences with proper notification) and players who won't be picked up by the warning system that nonetheless deserve a prod.
+
 -AMBITIOUS/UNKNOWN - Create a "settings & configurations" webpage that opens on the user's localhost and allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
 
 # BUGS (Bunny):
