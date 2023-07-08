@@ -22,15 +22,19 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Generate Original Playerlist and Update playerlist Alive/Dead automatically.
 
--The "votecount" function/command code is currently really chaotic and ugly.  It ought to be streamlined and some of the functionality should be placed into smaller functions
-
 -<u>The code should be broken entirely into cogs which are loaded into the bot via extension, allowing the bot to be changed at runtime</u> - The main.py file should have no code except the extensions!  (And possibly include empty extensions based on what we're intended to fill out later.)
 
 -The bot should be able to host multiple different games simultaneously.  Look into "Sharding"?
 
+-The bot should be able to track edits/deletions efficiently only from players with the "ALIVE" role in the game_thread.  
+
 -AMBITIOUS/UNKNOWN - Create a "settings & configurations" webpage that opens on the user's localhost and allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
 
 # BUGS (Bunny):
+
+-(Logged July 8th, 2023) - But would lead to some disappointments. I feel like inviting at random is non-ideal, but if you make friends there 
+
+-(Logged July 8th, 2023) - The "votecount" function/command code is currently really chaotic and ugly.  It ought to be streamlined and some of the functionality should be placed into smaller functions
 
 -(Logged July 8th, 2023) - The %gamesetup command triggers rate-limiting constantly.  This lasts for ~10 seconds in the test server but can last 1-5 minutes in the actual Mafia server.  This is a serious problem and needs to be optimized somehow. 
 
