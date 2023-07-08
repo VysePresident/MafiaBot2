@@ -20,6 +20,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Link vote-post in game chat to the votecount that results.
 
+-Generate Original Playerlist and Update playerlist Alive/Dead automatically.
+
 # BUGS (Bunny):
 
 -Bot can't handle underscores and certain usernames.
