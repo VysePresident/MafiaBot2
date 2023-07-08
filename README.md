@@ -34,6 +34,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -(Logged July 8th, 2023) - The %gamesetup command triggers rate-limiting constantly.  This lasts for ~10 seconds in the test server but can last 1-5 minutes in the actual Mafia server.  This is a serious problem and needs to be optimized somehow. 
 
+-(Logged July 8th, 2023) - The %endgame command checks *every* player in the server.  Is there a way to optimize it? Keep in mind that mods will add and remove roles from people arbitrarily on occassion so it really does need to track *every* instance of the roles (Alive, Dead, Spectator, Spoiler), not just those created by the game.
+
 -Bot can't handle underscores and certain usernames.
 
 -Are all moderater commands admin only? (No - %kill needs some work) 
