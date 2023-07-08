@@ -22,6 +22,12 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Generate Original Playerlist and Update playerlist Alive/Dead automatically.
 
+-The "votecount" function/command code is currently really chaotic and ugly.  It ought to be streamlined and some of the functionality should be placed into smaller functions
+
+-<u>The code should be broken entirely into cogs which are loaded into the bot via extension, allowing the bot to be changed at runtime</u> - The main.py file should have no code except the extensions!  (And possibly include empty extensions based on what we're intended to fill out later.)
+
+-The bot should be able to host multiple different games simultaneously.  Look into "Sharding"?
+
 -AMBITIOUS/UNKNOWN - Create a "settings & configurations" webpage that opens on the user's localhost and allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
 
 # BUGS (Bunny):
