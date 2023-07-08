@@ -22,6 +22,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Generate Original Playerlist and Update playerlist Alive/Dead automatically.
 
+-AMBITIOUS/UNKNOWN - Create a "settings & configurations" webpage that opens on the user's localhost and allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
+
 # BUGS (Bunny):
 
 -Bot can't handle underscores and certain usernames.
