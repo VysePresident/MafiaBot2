@@ -57,6 +57,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
 
+GEO (July 8 2023) Listed:
+
+[implemented] - In-game lynch status message that follows a vote or unvote now also links to the votecount for ease of players exploring the vote history.
+[implemented] - %signuplist now shows the number of people playing.
 
 # COMPLETED:
 
@@ -65,11 +69,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 [implemented] - Allow player swaps mid-game
 
-
-GEO (July 8 2023) Listed:
-
-[implemented] - In-game lynch status message that follows a vote or unvote now also links to the votecount for ease of players exploring the vote history.
-[implemented] - %signuplist now shows the number of people playing.
 
 GEO (June 27 2023) Listed:
 
