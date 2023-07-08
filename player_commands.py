@@ -34,7 +34,8 @@ class PlayerCommands(commands.Cog):
             await ctx.send('No one has signed up yet.')
         else:
             signups = "\n".join([user.name for user in Config.signup_list])
-            await ctx.send(f'The current signups are:\n{signups}')
+            await ctx.send(f'There are currently {len(Config.signup_list)} signups :\n\n{signups}')
+            # await ctx.send(f'The current signups are:\n{signups}')
 
     @commands.command()
     async def vote(self, ctx, voted: discord.Member):

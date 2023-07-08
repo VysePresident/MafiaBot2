@@ -58,6 +58,7 @@ async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=Fa
             count[voted].append(voter)
 
     # Construct message string
+    game_thread_message = ''
     votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}\n\n"
     endDay = False
     for voted, voters in count.items():
@@ -67,8 +68,10 @@ async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=Fa
         votecount_message += f"{voted.name}[{lynch_status}] - {voters_str}\n"
         if lynch_status == '**LYNCH**':
             endDay = True
+        # Game thread lynch status message
         if voted is vote_change:
-            await Config.game_channel.send(f"{voted.name} is {lynch_status}")
+            game_thread_message = f"{voted.name} is {lynch_status}"
+            # await Config.game_channel.send(f"{voted.name} is {lynch_status}")
     not_voting = [player for player in Config.signup_list if player not in Config.votes.keys()]
     if len(not_voting) > 0:
         votecount_message += f"\nNot Voting - {', '.join([player.name if player is not Config.prev_vote[0] else f'**{player.name}**' for player in not_voting])}"
@@ -82,6 +85,8 @@ async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=Fa
         votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} switched from {Config.prev_vote[1].name} to {voted.name}*"
     votecount_message += f"\n\n*With {len(Config.signup_list)} alive, it takes {votes_required} to lynch.*"
     votecount_message += "\n" + "-" * 40
+
+    # End of Day message
     if endDay:
         # await bot.get_command("kill").callback(ctx, voted)
         await kill(ctx, voted)
@@ -93,9 +98,16 @@ async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=Fa
     if in_channel_request:
         await ctx.send(votecount_message)
     else:
-        await Config.vote_channel.send(votecount_message)
+        votecount_sent = await Config.vote_channel.send(votecount_message)
+    # Another in-thread lynch status alternative message
     if vote_change is not None and vote_change not in count:
-        await Config.game_channel.send(f"{vote_change.name} has zero votes")
+        game_thread_message = f"{vote_change.name} has zero votes"
+        # await Config.game_channel.send(f"{vote_change.name} has zero votes")
+    # Test lynch status message
+    if votecount_sent:
+        game_thread_message += f": {votecount_sent.jump_url}"
+    await Config.game_channel.send(game_thread_message)
+
     if in_channel_request:
         Config.vote_count_number += 1
     return
@@ -137,20 +149,6 @@ async def roleinfo(ctx, *, role: str):
 async def rolelist(ctx):
     formatted_roles = [role.capitalize() for role in roles]
     await ctx.send("**Displaying normal roles:**\n" + '\n'.join(formatted_roles))
-"""
-
-"""
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def addplayer(ctx, new_player: discord.Member):
-    alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-    if new_player not in Config.signup_list:
-        Config.signup_list.append(new_player)
-        await new_player.add_roles(alive_role)
-        Config.live_players.append(new_player.name)
-        await ctx.send(f'{new_player.name} has been added to the game!')
-    else:
-        await ctx.send(f'{new_player.name} is already in the game!')
 """
 
 # Command is not used yet.  Review later.
