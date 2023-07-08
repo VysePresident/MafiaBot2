@@ -32,6 +32,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # BUGS (Bunny):
 
+-(Logged July 8th, 2023) - The %gamesetup command triggers rate-limiting constantly.  This lasts for ~10 seconds in the test server but can last 1-5 minutes in the actual Mafia server.  This is a serious problem and needs to be optimized somehow. 
+
 -Bot can't handle underscores and certain usernames.
 
 -Are all moderater commands admin only? (No - %kill needs some work) 
