@@ -36,6 +36,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -AMBITIOUS - Implement Role PMs and game-running functionality.  (Significant endevor, will need to be plotted out in more detail later.  I would like to combine this with the webpage idea if possible, because I think that's a more convenient interface.)
 
+-Store current game info in a database so that it persists even after the bot is turned off and then back on.
+
 # BUGS (Bunny):
 
 -(Logged July 8th, 2023) - But would lead to some disappointments. I feel like inviting at random is non-ideal, but if you make friends there 
