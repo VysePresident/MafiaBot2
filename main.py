@@ -108,7 +108,7 @@ async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=Fa
         game_thread_message += f": {votecount_sent.jump_url}"
     await Config.game_channel.send(game_thread_message)
 
-    if in_channel_request:
+    if not in_channel_request:
         Config.vote_count_number += 1
     return
 
