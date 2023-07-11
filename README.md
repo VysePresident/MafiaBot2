@@ -40,6 +40,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # BUGS (Bunny):
 
+-(Logged IN-GAME July 10th, 2023) - The "CHANGE" section of the vote count is not accurate.  I believe it is failing to account for voting using name instead of tag.  Likely the "config.py" variable "prev_vote" isn't being updated correctly.
+
 -(Logged July 8th, 2023) - But would lead to some disappointments. I feel like inviting at random is non-ideal, but if you make friends there 
 
 -(Logged July 8th, 2023) - The "votecount" function/command code is currently really chaotic and ugly.  It ought to be streamlined and some of the functionality should be placed into smaller functions
