@@ -38,6 +38,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Store current game info in a database so that it persists even after the bot is turned off and then back on.
 
+-%playerlist looks awful and should ideally be touched up.  No reason it can't look like the #playerlist channel stuff.  It would also be simpler to use to keep the #playerlist channel updated automatically.
+
 # BUGS (Bunny):
 
 -(Logged IN-GAME July 12th, 2023) - Modkilled players do not have their vote removed from subsequent votecounts until Day ends.
