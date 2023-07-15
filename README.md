@@ -40,6 +40,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -%playerlist looks awful and should ideally be touched up.  No reason it can't look like the #playerlist channel stuff.  It would also be simpler to use to keep the #playerlist channel updated automatically.
 
+-Make sure all commands offer error reports when you put incorrect parameters.  (I.e. If you try to %startgame without including the gamethread or votecount, let the user know what went wrong and what they should do.)
+
 # BUGS (Bunny):
 
 -(Logged IN-GAME July 12th, 2023) - Modkilled players do not have their vote removed from subsequent votecounts until Day ends.
