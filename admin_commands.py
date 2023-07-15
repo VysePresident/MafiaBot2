@@ -17,8 +17,8 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def startsignup(self, ctx):
-        # global signups_open, signup_list
         Config.signups_open = True
+        # print("DIJON!!")
         print("This is signups_open in startsignup(): " + str(Config.signups_open))
         Config.signup_list.clear()
         await ctx.send('Sign ups are open! Sign up for the game by doing %signup')
@@ -27,6 +27,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def forcesignup(self, ctx, user: discord.Member):
+        # print("YO MORE DIJON!")
         print("This is signups_open in forcesignup(): " + str(Config.signups_open))
         if user not in Config.signup_list:
             Config.signup_list.append(user)
@@ -123,7 +124,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def endgame(self, ctx):
-        
+
         # Collect roles
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         if alive_role is None:
@@ -144,7 +145,7 @@ class AdminCommands(commands.Cog):
         # Adjust channel permissions to end game state.
         game_category = Config.game_channel.category
         game_guild = Config.game_channel.guild
-        game_category.overwrites.clear() # set_permissions(game_category, overwrite=None)
+        game_category.overwrites.clear()  # set_permissions(game_category, overwrite=None)
 
         await game_category.set_permissions(game_guild.default_role, view_channel=True, send_messages=False)
 
@@ -420,4 +421,3 @@ class AdminCommands(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
-
