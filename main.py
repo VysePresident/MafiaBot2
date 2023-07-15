@@ -1,5 +1,53 @@
 import discord
 from discord.ext import commands
+from bot import MafiaBot
+from admin_commands import AdminCommands
+from player_commands import PlayerCommands
+
+bot_token = ''
+try:
+    from aso_key_file_name import mysterious_key_of_power
+    print("Main key imported")
+    bot_token = mysterious_key_of_power
+except ImportError:
+    try:
+        from test_token import test_token
+        bot_token = test_token
+        print("Test bot key imported")
+    except ImportError:
+        bot_token = ''
+        print("All imports failed.  Using blank key")
+
+bot = MafiaBot(command_prefix="%", token=bot_token)
+
+admin_commands = AdminCommands(bot)
+player_commands = PlayerCommands(bot)
+
+@bot.event
+async def on_ready():
+    # await bot.add_cog(admin_commands)
+    # await bot.add_cog(player_commands)
+
+    await bot.load_extension("admin_commands")
+    await bot.load_extension("player_commands")
+
+    if bot.get_channel(1110103139065012244):
+        channel = bot.get_channel(1110103139065012244)
+        await channel.send('Bot is online!')
+    else:
+        print("Mustard")
+
+@bot.command()
+async def reloadext(ctx):
+    await bot.reload_extension("admin_commands")
+    await bot.reload_extension("player_commands")
+
+
+bot.run(bot_token)
+
+"""
+import discord
+from discord.ext import commands
 import time as t
 import asyncio
 import collections
@@ -108,7 +156,7 @@ async def votecount(ctx, in_channel_request=True, vote_change=None, is_unvote=Fa
         game_thread_message += f": {votecount_sent.jump_url}"
     await Config.game_channel.send(game_thread_message)
 
-    if not in_channel_request:
+    if in_channel_request:
         Config.vote_count_number += 1
     return
 
@@ -131,6 +179,9 @@ async def kill(ctx, member: discord.Member):
         await ctx.send(f"{member.name} has been removed from the game.")
     else:
         await ctx.send(f"{member.name} is not in the game or already removed.")
+"""
+
+"""=============================================="""
 
 # ROLE RELATED COMMAND
 """@bot.command()
@@ -163,13 +214,15 @@ async def periodic_votecount_check():
         # Sleep for 10 seconds before checking again
         await asyncio.sleep(10)
 """
-
+"""=============================================="""
 #bot.loop.create_task(periodic_votecount_check())
 
 # TEST BOT KEY!
-bot.run(bot_token)
+# bot.run(bot_token)
 
-
+"""=============================================="""
+"""=============================================="""
+"""=============================================="""
 
 """from player_commands import perform_player_action
 from admin_commands import perform_admin_action
@@ -187,3 +240,4 @@ bot.load_extension("settings")
 
 if __name__ == "__main__":
     bot.run(MTExMDA5NjEwNDEwMTUzMTc0OA.GJLsEp.jLmTauJrCUZQ8uH4LJkEs0tDSLVLXC9Q9nb7mE)"""
+
