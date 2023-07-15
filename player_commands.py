@@ -30,6 +30,7 @@ class PlayerCommands(commands.Cog):
 
     @commands.command()
     async def signuplist(self, ctx):
+        print("This is some bizarrely violent mustard in signuplist")
         if not Config.signup_list:
             await ctx.send('No one has signed up yet.')
         else:
@@ -58,7 +59,8 @@ class PlayerCommands(commands.Cog):
         Config.votes[ctx.author] = voted
 
         await ctx.send(f"{ctx.author.name} has voted for {Config.votes[ctx.author].name}.")  # TEST
-        await self.bot.get_command("votecount").callback(ctx=ctx, in_channel_request=False, vote_change=voted)
+        # await self.bot.get_command("votecount").callback(ctx=ctx, in_channel_request=False, vote_change=voted)
+        await self.bot.votecount(self.bot, ctx=ctx, in_channel_request=False, vote_change=voted)
         return
 
     @commands.command()
@@ -69,8 +71,10 @@ class PlayerCommands(commands.Cog):
         if ctx.author in Config.votes:
             Config.prev_vote = (ctx.author, Config.votes.pop(ctx.author))  # TEST
             await ctx.send(f"{ctx.author.name} has unvoted.")
-            await self.bot.get_command("votecount").callback(ctx=ctx, in_channel_request=False,
-                                                        vote_change=Config.prev_vote[1], is_unvote=True)
+            await self.bot.votecount(self.bot, ctx=ctx, in_channel_request=False,
+                                                             vote_change=Config.prev_vote[1], is_unvote=True)
+            # await self.bot.get_command("votecount").callback(ctx=ctx, in_channel_request=False,
+            #                                            vote_change=Config.prev_vote[1], is_unvote=True)
         else:
             await ctx.send("You haven't voted yet.")
         return
@@ -104,5 +108,5 @@ class PlayerCommands(commands.Cog):
             dead_players.append("No players dead.")
         await ctx.send(f"Alive players:\n{' '.join(alive_players)}\n\nDead players:\n{' '.join(dead_players)}")
 
-def setup(bot):
-    bot.add_cog(PlayerCommands(bot))
+async def setup(bot):
+    await bot.add_cog(PlayerCommands(bot))
