@@ -3,8 +3,7 @@ from discord.ext import commands
 import time as t
 import asyncio
 import collections
-
-
+from config import Config
 
 class MafiaBot(commands.Bot):
     def __init__(self, command_prefix, token):
