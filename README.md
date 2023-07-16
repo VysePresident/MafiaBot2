@@ -44,6 +44,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # BUGS (Bunny):
 
+-(Logged IN-GAME July 15th, 2023) - The %swapplayer command returns an error.
+
+-(Logged IN-GAME July 15th, 2023) - Changing server nickname results in the player not being recognized as being in signup_list
+
 -(Logged IN-GAME July 12th, 2023) - Modkilled players do not have their vote removed from subsequent votecounts until Day ends.
 
 -(Logged IN-GAME July 10th, 2023) - The "CHANGE" section of the vote count is not accurate.  I believe it is failing to account for voting using name instead of tag.  Likely the "config.py" variable "prev_vote" isn't being updated correctly.
