@@ -18,8 +18,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Use the End of Day Timer
 
--Link vote-post in game chat to the votecount that results.
-
 -Generate Original Playerlist and Update playerlist Alive/Dead automatically.
 
 -<u>The code should be broken entirely into cogs which are loaded into the bot via extension, allowing the bot to be changed at runtime</u> - The main.py file should have no code except the extensions!  (And possibly include empty extensions based on what we're intended to fill out later.)
@@ -50,23 +48,25 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Set up unit testing with Discord input/output so that tests can be automated efficiently.
 
+-Pin Start_Of_Day empty votecounts.
+
+-Start_Of_Day empty votecounts should still include the Not Voting Category
+
+-It should be possible to remove a member and their vote from the game if they leave the server.
+
+-Use nicks instead of names where appropriate (votecounts, playerlists, signuplist, etc)
+
+-Retain original playerlist except in case of replacements.
+
 # BUGS (Bunny):
-
--(Logged IN-GAME July 15th, 2023) - Changing server nickname results in the player not being recognized as being in signup_list
-
--(Logged IN-GAME July 12th, 2023) - Modkilled players do not have their vote removed from subsequent votecounts until Day ends.
-
--(Logged IN-GAME July 10th, 2023) - The "CHANGE" section of the vote count is not accurate.  I believe it is failing to account for voting using name instead of tag.  Likely the "config.py" variable "prev_vote" isn't being updated correctly.
-
--(Logged July 8th, 2023) - The "votecount" function/command code is currently really chaotic and ugly.  It ought to be streamlined and some of the functionality should be placed into smaller functions
 
 -(Logged July 8th, 2023) - The %gamesetup command triggers rate-limiting constantly.  This lasts for ~10 seconds in the test server but can last 1-5 minutes in the actual Mafia server.  This is a serious problem and needs to be optimized somehow. 
 
 -(Logged July 8th, 2023) - The %endgame command checks *every* player in the server.  Is there a way to optimize it? Keep in mind that mods will add and remove roles from people arbitrarily on occassion so it really does need to track *every* instance of the roles (Alive, Dead, Spectator, Spoiler), not just those created by the game.
 
--Bot can't handle underscores and certain usernames.
+-Bot can't handle underscores and certain usernames. (EDIT: I'm uncertain if this is an issue or not.
 
--Are all moderater commands admin only? (No - %kill needs some work) 
+-Are all moderater commands admin only? (No - %kill and %votecount need some work) 
 
 -(Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
 
@@ -76,7 +76,20 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 1) Features, changes, bug-fixes that need testing when bot is free:
 
 GEO (July 17 2023) Listed:
+
+[implemented] %votecount has been refactored and is now much more streamlined and easy to understand & adjust.
+
 [implemented] - %playerlist looks are improved.
+
+[implemented] - Link vote-post in game chat to the votecount that results.
+
+[implemented] - Delete vote if someone is killed.
+
+[bugfix] - (Logged IN-GAME July 10th, 2023) - The "CHANGE" section of the vote count is not accurate.  I believe it is failing to account for voting using name instead of tag.  Likely the "config.py" variable "prev_vote" isn't being updated correctly. (The problem was that the "voted" variable being used was out of scope.  Cleaning up the legacy %votecount code fixed that)
+
+[bugfix] - (Logged IN-GAME July 12th, 2023) - Modkilled players do not have their vote removed from subsequent votecounts until Day ends.
+
+[bugfix] - (Logged IN-GAME July 15th, 2023) - Changing server nickname results in the player not being recognized as being in signup_list
 
 [bugfix] - (Logged IN-GAME July 15th, 2023) - The %swapplayer command returns an error.
 
