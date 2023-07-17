@@ -13,20 +13,15 @@ class MafiaBot(commands.Bot):
         )
         self.token = token
 
+    # async def votecount(self, ctx, in_channel_request=True, vote_change=None, is_unvote=False):
     @commands.command()
-    async def votecount(self, ctx, in_channel_request=True, vote_change=None, is_unvote=False):
+    async def votecount(self, ctx, voter, prev_vote, current_vote):
         # DEBUG LOG
-        print(f'Command votecount: Author: {ctx.author.name} in_channel_request: {in_channel_request} '
-              f'vote_change: {vote_change} is_unvote: {is_unvote}')  # DEBUG
+        print(f'Command votecount: Author: {ctx.author.name} voter: {voter.name} prev_vote: {prev_vote} '
+              f'current_vote: {current_vote}')
 
-        if in_channel_request is not True and in_channel_request is not False:
-            await ctx.send(
-                "You specified the wrong number of parameters.")
-            return
+        # Construct ordered vote count for each player voted.
         count = collections.OrderedDict()
-        votes_required = len(Config.signup_list) // 2 + 1
-
-        # Construct vote count for each player voted.  Should automatically be in order.
         for voter, voted in Config.votes.items():
             if voted in count:
                 count[voted].append(voter)
@@ -34,60 +29,90 @@ class MafiaBot(commands.Bot):
                 count[voted] = []
                 count[voted].append(voter)
 
-        # Construct message string
-        game_thread_message = ''
+        # Create and send votecount message
+        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(ctx, count, voter, prev_vote, current_vote)
+
         votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}\n\n"
-        endDay = False
+        votecount_message += votecount_strings + "\n"
+        votecount_message += self.findNotVoting(ctx, voter) + "\n"  # Testing
+        votecount_message += self.findChangedVote(voter, prev_vote, current_vote) + "\n"  # Testing
+        votecount_message += self.playersNeededToLynch()  # Testing
+        votecount_message += Config.LINE_BREAK + "\n"  # Testing
+        if check_if_end_day:
+            print("LOG 1: It is endDay my dudes")
+            votecount_message += f"**{current_vote.name} has been removed from the game**\n\n"
+            votecount_message += f"**Night {Config.day_number + 1} begins now!**\n\n"
+        votecount_sent = await Config.vote_channel.send(votecount_message)
+
+        # Create and send gamechat message
+        vote_change = prev_vote if lynch_status is None else current_vote
+        game_thread_message = self.returnLynchStatus(ctx, vote_change, lynch_status)
+        game_thread_message += f" - {votecount_sent.jump_url}"
+        await Config.game_channel.send(game_thread_message)
+
+        if check_if_end_day:
+            print("LOG 2: It is endDay my dudes")
+            await Config.game_channel.send(f"{Config.LINE_BREAK}\nThe day has ended with a lynch.")
+            await self.kill(self, ctx, current_vote)
+            alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
+            await Config.game_channel.set_permissions(alive_role, send_messages=False)
+
+        Config.vote_count_number += 1
+
+    def createVoteCountMessage(self, ctx, count, changed_voter, prev_vote, current_vote):
+        votes_required = len(Config.signup_list) // 2 + 1
+
+        votecount_chains = ''
+        check_if_end_day = False
+        changed_lynch_status = None
+
         for voted, voters in count.items():
             remaining_votes = votes_required - len(voters)  # The number of votes remaining for a lynch
             lynch_status = '**LYNCH**' if remaining_votes == 0 else f"L-{remaining_votes}"
             voters_str = ', '.join(
-                [voter.name if voter is not Config.prev_vote[0] else f'**{voter.name}**' for voter in voters])
-            votecount_message += f"{voted.name}[{lynch_status}] - {voters_str}\n"
+                [voter.name if voter is not changed_voter else f'**{voter.name}**' for voter in voters])
+            votecount_chains += f"{voted.name}[{lynch_status}] - {voters_str}\n"
             if lynch_status == '**LYNCH**':
-                endDay = True
+                check_if_end_day = True
             # Game thread lynch status message
-            if voted is vote_change:
-                game_thread_message = f"{voted.name} is {lynch_status}"
+            if voted is current_vote:
+                changed_lynch_status = lynch_status
+
+        return votecount_chains, check_if_end_day, changed_lynch_status
+
+    def findNotVoting(self, ctx, changed_voter):
+        not_voting_message = ''
         not_voting = [player for player in Config.signup_list if player not in Config.votes.keys()]
         if len(not_voting) > 0:
-            votecount_message += f"\nNot Voting - {', '.join([player.name if player is not Config.prev_vote[0] else f'**{player.name}**' for player in not_voting])}"
+            not_voting_message += f"Not Voting - "
+            not_voting_message += ', '.join([player.name if player is not changed_voter else f'**{player.name}**' for player in not_voting])
         else:
-            votecount_message += f"\nNot Voting - (None)"
-        if isinstance(Config.prev_vote[1], str):
-            votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} switched from {Config.prev_vote[1]} to {voted.name}*"
-        elif is_unvote:
-            votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} has unvoted {Config.prev_vote[1]}*"
+            not_voting_message += f"Not Voting - (None)"
+        not_voting_message += "\n"
+        return not_voting_message
+
+    def returnLynchStatus(self, ctx, voted, lynch_status):
+        if lynch_status == "**LYNCH**":
+            return f'{voted.name} has been lynched!'
+        elif lynch_status is None:
+            return f'{voted.name} has zero votes'
         else:
-            votecount_message += f"\n\n__Change__: *{Config.prev_vote[0].name} switched from {Config.prev_vote[1].name} to {voted.name}*"
-        votecount_message += f"\n\n*With {len(Config.signup_list)} alive, it takes {votes_required} to lynch.*"
-        votecount_message += "\n" + "-" * 40
+            return f'{voted.name} is {lynch_status}'
 
-        # End of Day message
-        if endDay:
-            print(f'endDay activated')  # DEBUG LOG
-
-            await self.kill(self, ctx, voted)
-            votecount_message += f"\n\n**{voted.name} has been removed from the game**"
-            votecount_message += f"\n\n**Night {Config.day_number + 1} begins now!**"
-            alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-            await Config.game_channel.set_permissions(alive_role, send_messages=False)
-            await Config.game_channel.send("The day has ended with a lynch.")
-        if in_channel_request:
-            await ctx.send(votecount_message)
+    def findChangedVote(self, voter, prev_vote, current_vote):
+        changed_vote_message = '__CHANGE__: '
+        if current_vote == Config.NOT_VOTING:
+            changed_vote_message += f'{voter.name} has unvoted {prev_vote.name}'
+        elif prev_vote == Config.NOT_VOTING:
+            changed_vote_message += f'{voter.name} has switched from {Config.NOT_VOTING} to voting {current_vote.name}'
         else:
-            votecount_sent = await Config.vote_channel.send(votecount_message)
-        # Another in-thread lynch status alternative message
-        if vote_change is not None and vote_change not in count:
-            game_thread_message = f"{vote_change.name} has zero votes"
-        # Test lynch status message
-        if votecount_sent:
-            game_thread_message += f": {votecount_sent.jump_url}"
-        await Config.game_channel.send(game_thread_message)
+            changed_vote_message += f'{voter.name} has switched their vote from {prev_vote.name} to {current_vote.name}'
+        changed_vote_message += "\n"
+        return changed_vote_message
 
-        if in_channel_request:
-            Config.vote_count_number += 1
-        return
+    def playersNeededToLynch(self):
+        votes_required = len(Config.signup_list) // 2 + 1
+        return f"*With {len(Config.signup_list)} alive, it takes {votes_required} to lynch.*\n"
 
     @commands.command()
     # @commands.has_permissions(Administrator=True)

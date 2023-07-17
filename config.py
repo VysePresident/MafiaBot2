@@ -18,8 +18,6 @@ class Config():
     signup_list = []  # Pre & Mid
     vote_count_number = 1
     votes = collections.OrderedDict()
-    prev_vote = None
-    current_vote = None  # Unused atm
     live_players = []
     vote_since_last_count = 0
     # start_time = datetime.now()  # Unused atm
@@ -28,3 +26,7 @@ class Config():
 
     # Post count collection
     post_counts = collections.defaultdict(lambda: collections.defaultdict(int))
+
+    # Constant:
+    NOT_VOTING = "not voting"  # Refers to a state in which a player either hasn't voted or has unvoted.
+    LINE_BREAK = "-" * 40 + "\n"
