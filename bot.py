@@ -19,14 +19,7 @@ class MafiaBot(commands.Bot):
               f'current_vote: {current_vote}')
 
         # Construct ordered vote count for each player voted.
-        count = collections.OrderedDict()
-        for voter, voted in Config.votes.items():
-            if voted in count:
-                count[voted].append(voter)
-            else:
-                count[voted] = []
-                count[voted].append(voter)
-
+        count = self.constructVoteCounts()
         # Create and send votecount message
         votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, current_vote)
 
@@ -112,6 +105,16 @@ class MafiaBot(commands.Bot):
         votes_required = len(Config.signup_list) // 2 + 1
         return f"*With {len(Config.signup_list)} alive, it takes {votes_required} to lynch.*\n"
 
+    def constructVoteCounts(self):
+        count = collections.OrderedDict()
+        for voter, voted in Config.votes.items():
+            if voted in count:
+                count[voted].append(voter)
+            else:
+                count[voted] = []
+                count[voted].append(voter)
+        return count
+
     @commands.command()
     # @commands.has_permissions(Administrator=True)
     async def kill(self, ctx, member: discord.Member):
@@ -127,8 +130,9 @@ class MafiaBot(commands.Bot):
             if alive_role in member.roles:
                 await member.remove_roles(alive_role)
             if dead_role not in member.roles:
-                await member.add_roles(dead_role)
-            await ctx.send(f"{member.name} has been removed from the game.")
+                print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")
+                # await member.add_roles(dead_role)
+            await ctx.send(f"{member.name} has been removed from the game. NOTE: Dead role must be added manually for now")
         else:
             await ctx.send(f"{member.name} is not in the game or already removed.")
 
