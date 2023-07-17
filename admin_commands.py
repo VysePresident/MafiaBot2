@@ -17,18 +17,21 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def startsignup(self, ctx):
+        # DEBUG LOG:
+        print(f"Command startsignup: Author: {ctx.author.name} Initial State: {Config.signups_open}")
+
         Config.signups_open = True
-        # print("DIJON!!")
-        print("This is signups_open in startsignup(): " + str(Config.signups_open))
         Config.signup_list.clear()
+        print(f"startsignup Result: Author: {ctx.author.name} Final State: {Config.signups_open}")
         await ctx.send('Sign ups are open! Sign up for the game by doing %signup')
         return
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def forcesignup(self, ctx, user: discord.Member):
-        # print("YO MORE DIJON!")
-        print("This is signups_open in forcesignup(): " + str(Config.signups_open))
+        # DEBUG LOG
+        print(f"command forcesignup. Author: {ctx.author.name} Target: {user.name}")
+
         if user not in Config.signup_list:
             Config.signup_list.append(user)
             await ctx.send(f'{user.name} has been signed up.')
@@ -38,13 +41,10 @@ class AdminCommands(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def bugTest(self, ctx):
-        print("This is signups_open in bugTest(): " + str(Config.signups_open))
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
     async def unforcesignup(self, ctx, user: discord.Member):
-        print("This is signups_open in unforcesignup(): " + str(Config.signups_open))
+        # DEBUG LOG
+        print(f'Command unforcesignup. Author: {ctx.author.name} Target: {user.name}')
+
         if user in Config.signup_list:
             Config.signup_list.remove(user)
             await ctx.send(f'{user.name} has been removed from the signup list.')
@@ -56,13 +56,17 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def startgame(self, ctx, game_channel_param: discord.TextChannel, vote_channel_param: discord.TextChannel,
                         day_length: int = 1):
+        # DEBUG LOG
+        print(f'Command startgame: Author: {ctx.author.name} game_ch: {game_channel_param} vc: {vote_channel_param} '
+              f'day_length: {day_length}')
+
         Config.global_day_length = day_length
-        # Test Debugging
-        print("This is signups_open in startgame(): " + str(Config.signups_open))
         if not Config.signups_open:
+            print(f'startgame failed - signups closed')
             await ctx.send('Signups are currently closed.')
             return
         if not Config.signup_list:
+            print(f'startgame failed - signups empty')
             await ctx.send('No one has signed up yet.')
             return
         Config.signups_open = False
@@ -119,7 +123,7 @@ class AdminCommands(commands.Cog):
             await Config.game_channel.send("The day has ended due to time running out.")
             return
         except asyncio.CancelledError:
-            print("We cancelled original day phase time limit!")
+            print("Day phase time limit canceled!")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -214,13 +218,16 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def swapplayer(self, ctx, existing_player: discord.Member, new_player: discord.Member):
-        if existing_player in Config.signup_list:
+        # DEBUG LOG
+        print(f'Command swapplayer: Author: {ctx.author.name} existing_player: {existing_player.name} '
+              f'new_player: {new_player.name}')
+
+        if existing_player in Config.signup_list and existing_player.name in Config.live_players:
             if new_player not in Config.signup_list:
-                index = Config.signup_list.index(existing_player)
-                Config.signup_list[index] = new_player
-                if existing_player.name in Config.live_players:
-                    Config.live_players.remove(existing_player.name)
-                Config.live_players.remove(new_player.name)
+                signup_index = Config.signup_list.index(existing_player)
+                Config.signup_list[signup_index] = new_player
+                playerlist_index = Config.live_players.index(existing_player.name)
+                Config.live_players[playerlist_index] = new_player.name
                 alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
                 await existing_player.remove_roles(alive_role)
                 await new_player.add_roles(alive_role)
@@ -257,8 +264,6 @@ class AdminCommands(commands.Cog):
             minutes, seconds = divmod(rem, 60)
             await ctx.send(
                 f"Time remaining: {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds.")
-
-        # await ctx.send(f'The day length has been changed to {Config.global_day_length} days.')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -397,6 +402,12 @@ class AdminCommands(commands.Cog):
     async def changeday(self, ctx, day: int):
         Config.day_number = day
         await ctx.send(f"The new day is now {Config.day_number}")
+
+    # BUG TESTING COMMAND **ONLY**
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def liveplayers(self, ctx):
+        await ctx.send("This is live_players:\n\n " + '\n'.join(Config.live_players))
 
     # BUG TESTING COMMAND **ONLY**
     """@commands.command()
