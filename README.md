@@ -46,6 +46,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Game should automatically update playerlist thread with contents of %playerlist.  It should be possible to submit additional data (such as flipped alignment/role) to the bot for dead players
 
+-Set up logging so that errors are easier to locate
+
+-Set up unit testing with Discord input/output so that tests can be automated efficiently.
+
 # BUGS (Bunny):
 
 -(Logged IN-GAME July 15th, 2023) - Changing server nickname results in the player not being recognized as being in signup_list
