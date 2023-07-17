@@ -1,9 +1,8 @@
 import discord
 from discord.ext import commands
-import time as t
-import asyncio
 import collections
 from config import Config
+
 
 class MafiaBot(commands.Bot):
     def __init__(self, command_prefix, token):
@@ -13,7 +12,6 @@ class MafiaBot(commands.Bot):
         )
         self.token = token
 
-    # async def votecount(self, ctx, in_channel_request=True, vote_change=None, is_unvote=False):
     @commands.command()
     async def votecount(self, ctx, voter, prev_vote, current_vote):
         # DEBUG LOG
@@ -30,14 +28,14 @@ class MafiaBot(commands.Bot):
                 count[voted].append(voter)
 
         # Create and send votecount message
-        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(ctx, count, voter, prev_vote, current_vote)
+        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, current_vote)
 
         votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}\n\n"
         votecount_message += votecount_strings + "\n"
-        votecount_message += self.findNotVoting(ctx, voter) + "\n"  # Testing
-        votecount_message += self.findChangedVote(voter, prev_vote, current_vote) + "\n"  # Testing
-        votecount_message += self.playersNeededToLynch()  # Testing
-        votecount_message += Config.LINE_BREAK + "\n"  # Testing
+        votecount_message += self.findNotVoting(voter) + "\n"
+        votecount_message += self.findChangedVote(voter, prev_vote, current_vote) + "\n"
+        votecount_message += self.playersNeededToLynch()
+        votecount_message += Config.LINE_BREAK + "\n"
         if check_if_end_day:
             print("LOG 1: It is endDay my dudes")
             votecount_message += f"**{current_vote.name} has been removed from the game**\n\n"
@@ -59,7 +57,7 @@ class MafiaBot(commands.Bot):
 
         Config.vote_count_number += 1
 
-    def createVoteCountMessage(self, ctx, count, changed_voter, prev_vote, current_vote):
+    def createVoteCountMessage(self, count, changed_voter, current_vote):
         votes_required = len(Config.signup_list) // 2 + 1
 
         votecount_chains = ''
@@ -74,13 +72,13 @@ class MafiaBot(commands.Bot):
             votecount_chains += f"{voted.name}[{lynch_status}] - {voters_str}\n"
             if lynch_status == '**LYNCH**':
                 check_if_end_day = True
-            # Game thread lynch status message
+            # Lynch status of voted target
             if voted is current_vote:
                 changed_lynch_status = lynch_status
 
         return votecount_chains, check_if_end_day, changed_lynch_status
 
-    def findNotVoting(self, ctx, changed_voter):
+    def findNotVoting(self, changed_voter):
         not_voting_message = ''
         not_voting = [player for player in Config.signup_list if player not in Config.votes.keys()]
         if len(not_voting) > 0:
@@ -134,9 +132,10 @@ class MafiaBot(commands.Bot):
         else:
             await ctx.send(f"{member.name} is not in the game or already removed.")
 
+
 # ROLE RELATED COMMAND
 """@bot.command()
-async def roleinfo(ctx, *, role: str):
+async def roleInfo(ctx, *, role: str):
     role = role.lower()
     if role not in roles:
         await ctx.send('That role cannot be found. Try googling "(rolename) mafiascum wiki".')
