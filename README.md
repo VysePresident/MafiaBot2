@@ -73,12 +73,14 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 GEO (July 17 2023) Listed:
 [implemented] - %playerlist looks are improved.
+
 [bugfix] - (Logged IN-GAME July 15th, 2023) - The %swapplayer command returns an error.
 
 
 GEO (July 8 2023) Listed:
 
 [implemented] - In-game lynch status message that follows a vote or unvote now also links to the votecount for ease of players exploring the vote history.
+
 [implemented] - %signuplist now shows the number of people playing.
 
 # COMPLETED:
