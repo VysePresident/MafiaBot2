@@ -38,21 +38,21 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Store current game info in a database so that it persists even after the bot is turned off and then back on.
 
--%playerlist looks awful and should ideally be touched up.  No reason it can't look like the #playerlist channel stuff.  It would also be simpler to use to keep the #playerlist channel updated automatically.
-
 -Make sure all commands offer error reports when you put incorrect parameters.  (I.e. If you try to %startgame without including the gamethread or votecount, let the user know what went wrong and what they should do.)
 
-# BUGS (Bunny):
+-Look into creating a player class that stores the Discord object, living status, and (arguably) vote status.  We will also need the ability to replace them out or kill them even if they leave the server.  This is off the top of my head.
 
--(Logged IN-GAME July 15th, 2023) - The %swapplayer command returns an error.
+-Votes need to be related to the player id.  I think all votes should require a ping at this point tbh.
+
+-Game should automatically update playerlist thread with contents of %playerlist.  It should be possible to submit additional data (such as flipped alignment/role) to the bot for dead players
+
+# BUGS (Bunny):
 
 -(Logged IN-GAME July 15th, 2023) - Changing server nickname results in the player not being recognized as being in signup_list
 
 -(Logged IN-GAME July 12th, 2023) - Modkilled players do not have their vote removed from subsequent votecounts until Day ends.
 
 -(Logged IN-GAME July 10th, 2023) - The "CHANGE" section of the vote count is not accurate.  I believe it is failing to account for voting using name instead of tag.  Likely the "config.py" variable "prev_vote" isn't being updated correctly.
-
--(Logged July 8th, 2023) - But would lead to some disappointments. I feel like inviting at random is non-ideal, but if you make friends there 
 
 -(Logged July 8th, 2023) - The "votecount" function/command code is currently really chaotic and ugly.  It ought to be streamlined and some of the functionality should be placed into smaller functions
 
@@ -70,6 +70,11 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
+
+GEO (July 17 2023) Listed:
+[implemented] - %playerlist looks are improved.
+[bugfix] - (Logged IN-GAME July 15th, 2023) - The %swapplayer command returns an error.
+
 
 GEO (July 8 2023) Listed:
 
