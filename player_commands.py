@@ -58,28 +58,31 @@ class PlayerCommands(commands.Cog):
             await ctx.send("You can only vote in the game chat.")
             return
 
+        voter = ctx.author
+        prev_vote = ''
+        current_vote = voted
+
         if ctx.author in Config.votes:
             # print("Gate Change Vote")
-            Config.prev_vote = (ctx.author, Config.votes.pop(ctx.author))
+            prev_vote = Config.votes.pop(ctx.author)
         else:
             # print("Gate Wasn't Voting")
-            Config.prev_vote = (ctx.author, "not voting")
+            prev_vote = Config.NOT_VOTING
         Config.votes[ctx.author] = voted
 
-        # DEBUG LOGS
-        """print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
-        if ctx.author in Config.votes:
-            # DEBUG
-            print(f'RESULT: This is prev_vote[0]: {Config.prev_vote[0].name} and prev_vote[1]: {Config.prev_vote[1].name}')
-        else:
-            # DEBUG
-            print(f'RESULT: This is prev_vote[0]: {Config.prev_vote[0].name} and prev_vote[1]: {Config.prev_vote[1]}')"""
-
         # DEBUG LOGS:
-        print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
-        print(f'Finishing vote - prev_vote: prev_vote[0]: {Config.prev_vote[0]} and prev_vote[1]: {Config.prev_vote[1]}')
+        if prev_vote != Config.NOT_VOTING and current_vote != Config.NOT_VOTING:
+            print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
+            print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote.name} voter: {voter.name}')
+        elif prev_vote == Config.NOT_VOTING:
+            print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
+            print(f'Finishing vote - prev_vote: {prev_vote} current_vote: {current_vote.name} voter: {voter.name}')
+        else:
+            print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
+            print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote} voter: {voter.name}')
+
         await ctx.send(f"{ctx.author.name} has voted for {Config.votes[ctx.author].name}.")  # TEST
-        await self.bot.votecount(self.bot, ctx=ctx, in_channel_request=False, vote_change=voted)
+        await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         return
 
     @commands.command()
@@ -91,16 +94,16 @@ class PlayerCommands(commands.Cog):
             await ctx.send("You can only vote in the game chat.")
             return
         if ctx.author in Config.votes:
-            Config.prev_vote = (ctx.author, Config.votes.pop(ctx.author))  # TEST
-            await ctx.send(f"{ctx.author.name} has unvoted.")
-            await self.bot.votecount(self.bot, ctx=ctx, in_channel_request=False,
-                                                             vote_change=Config.prev_vote[1], is_unvote=True)
+            prev_vote = Config.votes.pop(ctx.author)
+            current_vote = Config.NOT_VOTING
+            voter = ctx.author
+            await ctx.send(f"{ctx.author.name} has unvoted {prev_vote.name}.")
+            await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         else:
             await ctx.send("You haven't voted yet.")
         return
 
     @commands.command()
-
     async def time(self, ctx):
         # DEBUG
         print(f'command time: ctx.author: {ctx.author.name} used %time')
