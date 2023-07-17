@@ -262,6 +262,7 @@ class AdminCommands(commands.Cog):
             await ctx.send(
                 f"Time remaining: {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds.")
 
+    # Adjust to make this a wrapper around the "kill" function later.
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def modkill(self, ctx, member: discord.Member):
@@ -275,8 +276,16 @@ class AdminCommands(commands.Cog):
             if alive_role in member.roles:
                 await member.remove_roles(alive_role)
             if dead_role not in member.roles:
-                await member.add_roles(dead_role)
-            await ctx.send(f"{member.name} has been removed from the game.")
+                # Perform unvote operation - adjust to use the unvote function in the future.
+                if member in Config.votes:
+                    prev_vote = Config.votes.pop(member)
+                    current_vote = Config.NOT_VOTING
+                    voter = member
+                    await ctx.send(f"{ctx.author.name} has unvoted {prev_vote.name}.")
+                    await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
+                print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")
+                # await member.add_roles(dead_role)
+            await ctx.send(f"{member.name} has been removed from the game. NOTE: Dead role must be added manually for now")
         else:
             await ctx.send(f"{member.name} is not in the game or already removed.")
         # await self.bot.kill(ctx, member)
