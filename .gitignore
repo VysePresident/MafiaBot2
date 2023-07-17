@@ -29,3 +29,14 @@ __pycache__/test_token.cpython-311.pyc
 __pycache__/player_commands.cpython-311.pyc
 __pycache__/bot.cpython-311.pyc
 __pycache__/admin_commands.cpython-311.pyc
+__pycache__/player_commands.cpython-311.pyc
+__pycache__/config.cpython-311.pyc
+__pycache__/bot.cpython-311.pyc
+__pycache__/admin_commands.cpython-311.pyc
+*.iml
+__pycache__/player_commands.cpython-311.pyc
+__pycache__/config.cpython-311.pyc
+__pycache__/bot.cpython-311.pyc
+__pycache__/admin_commands.cpython-311.pyc
+.idea/MafiaBot.iml
+*.pyc
