@@ -1,4 +1,5 @@
 from bot import MafiaBot
+from discord.ext import commands
 
 bot_token = ''
 try:
@@ -28,7 +29,9 @@ async def on_ready():
     print("Bot is online")
 
 @bot.command()
+@commands.has_permissions(administrator=True)
 async def reloadext(ctx):
+    print("Reloading extensions!")
     await bot.reload_extension("admin_commands")
     await bot.reload_extension("player_commands")
 
