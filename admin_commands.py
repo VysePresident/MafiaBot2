@@ -190,8 +190,6 @@ class AdminCommands(commands.Cog):
         Config.signup_list = []  # Pre & Mid
         Config.vote_count_number = 1
         Config.votes = collections.OrderedDict()
-        Config.prev_vote = None
-        Config.current_vote = None  # Unused atm
         Config.live_players = []
         Config.vote_since_last_count = 0
         # Config.start_time = datetime.now()  # Unused atm
