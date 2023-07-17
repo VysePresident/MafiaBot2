@@ -4,7 +4,6 @@ from discord.ext import commands
 import asyncio
 import collections
 import re
-import datetime
 
 from config import Config
 
