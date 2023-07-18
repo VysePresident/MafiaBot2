@@ -100,6 +100,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def newday(self, ctx, day_length: int = 1):
+        print(f"Command newday Author {ctx.author.name}")
         day_length = Config.global_day_length
         Config.day_number += 1
         Config.vote_count_number = 1
@@ -131,7 +132,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def endgame(self, ctx):
-
+        print(f"Command endgame: Author: {ctx.author.name}")
         # Collect roles
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         if alive_role is None:
@@ -207,6 +208,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def addplayer(self, ctx, new_player: discord.Member):
+        print(f'Command swapplayer: Author: {ctx.author.name} new_player: {new_player.name}')
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         if new_player not in Config.signup_list:
             Config.signup_list.append(new_player)
@@ -246,6 +248,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def changedaylength(self, ctx, *args):
+        print(f"Command changedaylength Author {ctx.author.name}")
         day_length_in_seconds = 0
         for arg in args:
             if arg[-1] == 'd':
@@ -275,6 +278,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def modkill(self, ctx, member: discord.Member):
+        print(f"Command modkill Author: {ctx.author.name} Target {member.name}")
         if member.name in Config.live_players:
             Config.live_players.remove(member.name)
             Config.signup_list.remove(member)
@@ -305,6 +309,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def changevotethread(self, ctx, new_vote_channel: discord.TextChannel):
+        print(f"Command changevotethread Author: {ctx.author.name}")
         Config.vote_channel = new_vote_channel
         await ctx.send(f"The vote channel is now {Config.vote_channel}")
         await Config.vote_channel.send("This is now the vote channel")
@@ -312,6 +317,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def changegamethread(self, ctx, new_game_channel: discord.TextChannel):
+        print(f"Command changegamethread Author: {ctx.author.name}")
         Config.game_channel = new_game_channel
         await ctx.send(f"The game channel is now {Config.game_channel}")
         await Config.game_channel.send("This is now the game channel")
@@ -319,6 +325,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def gamesetup(self, ctx, game_name):
+        print(f"Command gamesetup: Author: {ctx.author.name} Game_Name: {game_name}")
 
         # Catch roles
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
@@ -418,6 +425,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def changeday(self, ctx, day: int):
+        print(f"Command changeday Author: {ctx.author.name} Day: {day}")
         Config.day_number = day
         Config.vote_count_number = 1
         await ctx.send(f"The new day is now {Config.day_number}")
@@ -426,6 +434,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def liveplayers(self, ctx):
+        print(f"Command liveplayers Author: {ctx.author.name}")
         await ctx.send("This is live_players:\n\n " + '\n'.join(Config.live_players))
 
     # BUG TESTING COMMAND **ONLY**
