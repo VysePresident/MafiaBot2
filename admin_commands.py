@@ -33,9 +33,11 @@ class AdminCommands(commands.Cog):
 
         if user not in Config.signup_list:
             Config.signup_list.append(user)
-            await ctx.send(f'{user.name} has been signed up.')
+            # await ctx.send(f'{user.name} has been signed up.')
+            await ctx.send(f'{user.display_name} has been signed up.')
         else:
-            await ctx.send(f'{user.name} is already signed up.')
+            # await ctx.send(f'{user.name} is already signed up.')
+            await ctx.send(f'{user.display_name} is already signed up.')
         return
 
     @commands.command()
@@ -46,9 +48,11 @@ class AdminCommands(commands.Cog):
 
         if user in Config.signup_list:
             Config.signup_list.remove(user)
-            await ctx.send(f'{user.name} has been removed from the signup list.')
+            # await ctx.send(f'{user.name} has been removed from the signup list.')
+            await ctx.send(f'{user.display_name} has been removed from the signup list.')
         else:
-            await ctx.send(f'{user.name} is not on the signup list.')
+            # await ctx.send(f'{user.name} is not on the signup list.')
+            await ctx.send(f'{user.display_name} is not on the signup list.')
         return
 
     @commands.command()
@@ -103,7 +107,7 @@ class AdminCommands(commands.Cog):
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         await Config.game_channel.set_permissions(alive_role, send_messages=True)
 
-        votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number}**\n\nNo votes yet."
+        votecount_message = f"**Vote Count {Config.day_number}.0**\n\nNo votes yet."
         votecount_message += "\n" + (40 * "-")
         await Config.vote_channel.send(votecount_message)
 
@@ -208,9 +212,11 @@ class AdminCommands(commands.Cog):
             Config.signup_list.append(new_player)
             await new_player.add_roles(alive_role)
             Config.live_players.append(new_player.name)
-            await ctx.send(f'{new_player.name} has been added to the game!')
+            # await ctx.send(f'{new_player.name} has been added to the game!')
+            await ctx.send(f'{new_player.display_name} has been added to the game!')
         else:
-            await ctx.send(f'{new_player.name} is already in the game!')
+            # await ctx.send(f'{new_player.name} is already in the game!')
+            await ctx.send(f'{new_player.display_name} is already in the game!')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -228,11 +234,14 @@ class AdminCommands(commands.Cog):
                 alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
                 await existing_player.remove_roles(alive_role)
                 await new_player.add_roles(alive_role)
-                await ctx.send(f'{existing_player.name} has been replaced with {new_player.name}.')
+                # await ctx.send(f'{existing_player.name} has been replaced with {new_player.name}.')
+                await ctx.send(f'{existing_player.display_name} has been replaced with {new_player.display_name}.')
             else:
-                await ctx.send(f'{new_player.name} is already in the game.')
+                # await ctx.send(f'{new_player.name} is already in the game.')
+                await ctx.send(f'{new_player.display_name} is already in the game.')
         else:
-            await ctx.send(f'{existing_player.name} is not in the game.')
+            # await ctx.send(f'{existing_player.name} is not in the game.')
+            await ctx.send(f'{existing_player.display_name} is not in the game.')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -281,13 +290,16 @@ class AdminCommands(commands.Cog):
                     prev_vote = Config.votes.pop(member)
                     current_vote = Config.NOT_VOTING
                     voter = member
-                    await ctx.send(f"{ctx.author.name} has unvoted {prev_vote.name}.")
+                    # await ctx.send(f"{ctx.author.name} has unvoted {prev_vote.name}.")
+                    await ctx.send(f"{ctx.author.display_name} has unvoted {prev_vote.display_name}.")
                     await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
                 print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")
                 # await member.add_roles(dead_role)
-            await ctx.send(f"{member.name} has been removed from the game. NOTE: Dead role must be added manually for now")
+            # await ctx.send(f"{member.name} has been removed from the game. NOTE: Dead role must be added manually for now")
+            await ctx.send(f"{member.display_name} has been removed from the game. NOTE: Dead role must be added manually for now")
         else:
-            await ctx.send(f"{member.name} is not in the game or already removed.")
+            # await ctx.send(f"{member.name} is not in the game or already removed.")
+            await ctx.send(f"{member.display_name} is not in the game or already removed.")
         # await self.bot.kill(ctx, member)
 
     @commands.command()
@@ -407,6 +419,7 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def changeday(self, ctx, day: int):
         Config.day_number = day
+        Config.vote_count_number = 1
         await ctx.send(f"The new day is now {Config.day_number}")
 
     # BUG TESTING COMMAND **ONLY**
