@@ -16,9 +16,11 @@ class PlayerCommands(commands.Cog):
         if Config.signups_open:
             if ctx.author not in Config.signup_list:
                 Config.signup_list.append(ctx.author)
-                await ctx.send(f'Thank you for signing up, {ctx.author.name}!')
+                # await ctx.send(f'Thank you for signing up, {ctx.author.name}!')
+                await ctx.send(f'Thank you for signing up, {ctx.author.display_name}!')
             else:
-                await ctx.send(f'You have already signed up, {ctx.author.name}!')
+                # await ctx.send(f'You have already signed up, {ctx.author.name}!')
+                await ctx.send(f'You have already signed up, {ctx.author.display_name}!')
         else:
             await ctx.send('Sign ups are currently closed.')
 
@@ -29,9 +31,11 @@ class PlayerCommands(commands.Cog):
 
         if ctx.author in Config.signup_list:
             Config.signup_list.remove(ctx.author)
-            await ctx.send(f'You have been removed from the sign up list, {ctx.author.name}!')
+            # await ctx.send(f'You have been removed from the sign up list, {ctx.author.name}!')
+            await ctx.send(f'You have been removed from the sign up list, {ctx.author.display_name}!')
         else:
-            await ctx.send(f'You are not on the sign up list, {ctx.author.name}!')
+            # await ctx.send(f'You are not on the sign up list, {ctx.author.name}!')
+            await ctx.send(f'You are not on the sign up list, {ctx.author.display_name}!')
 
     @commands.command()
     async def signuplist(self, ctx):
@@ -40,7 +44,8 @@ class PlayerCommands(commands.Cog):
         if not Config.signup_list:
             await ctx.send('No one has signed up yet.')
         else:
-            signups = "\n".join([user.name for user in Config.signup_list])
+            # signups = "\n".join([user.name for user in Config.signup_list])
+            signups = "\n".join([user.display_name for user in Config.signup_list])
             await ctx.send(f'There are currently {len(Config.signup_list)} signups:\n\n{signups}')
 
     @commands.command()
@@ -81,7 +86,8 @@ class PlayerCommands(commands.Cog):
             print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
             print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote} voter: {voter.name}')
 
-        await ctx.send(f"{ctx.author.name} has voted for {Config.votes[ctx.author].name}.")  # TEST
+        # await ctx.send(f"{ctx.author.name} has voted for {Config.votes[ctx.author].name}.")
+        await ctx.send(f"{ctx.author.display_name} has voted for {Config.votes[ctx.author].display_name}.")
         await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         return
 
@@ -97,7 +103,8 @@ class PlayerCommands(commands.Cog):
             prev_vote = Config.votes.pop(ctx.author)
             current_vote = Config.NOT_VOTING
             voter = ctx.author
-            await ctx.send(f"{ctx.author.name} has unvoted {prev_vote.name}.")
+            # await ctx.send(f"{ctx.author.name} has unvoted {prev_vote.name}.")
+            await ctx.send(f"{ctx.author.display_name} has unvoted {prev_vote.display_name}.")
             await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         else:
             await ctx.send("You haven't voted yet.")
@@ -134,9 +141,11 @@ class PlayerCommands(commands.Cog):
         dead_players = []
         for member in ctx.guild.members:
             if discord.utils.get(member.roles, name="Alive"):
-                alive_players.append(member.name)
+                # alive_players.append(member.name)
+                alive_players.append(member.display_name)
             elif discord.utils.get(member.roles, name="Dead"):
-                dead_players.append(member.name)
+                # dead_players.append(member.name)
+                dead_players.append(member.display_name)
         if not alive_players:
             alive_players.append("No players alive.")
         if not dead_players:
