@@ -75,6 +75,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
 
+GEO (July 18 2023) Listed:
+
+[implemented] - Start of day Bot post and vote count are now both automatically pinned.
+
 GEO (July 17 2023) Listed:
 
 [implemented] %votecount has been refactored and is now much more streamlined and easy to understand & adjust.
