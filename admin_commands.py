@@ -110,9 +110,12 @@ class AdminCommands(commands.Cog):
 
         votecount_message = f"**Vote Count {Config.day_number}.0**\n\nNo votes yet."
         votecount_message += "\n" + (40 * "-")
-        await Config.vote_channel.send(votecount_message)
+        day_start_vote_msg = await Config.vote_channel.send(votecount_message)
+        await day_start_vote_msg.pin()
 
-        await Config.game_channel.send(f"Day {Config.day_number} has begun. It will end in {day_length} days.")
+        day_start_msg = await Config.game_channel.send(f"Day {Config.day_number} has begun. It will end in {day_length} days.")
+        await day_start_msg.pin()
+
         Config.day_end_time = t.time() + day_length * 24 * 60 * 60
         Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(day_length))
         return
