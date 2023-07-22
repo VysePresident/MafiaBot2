@@ -3,7 +3,7 @@ from datetime import datetime
 import collections
 
 
-class Config():
+class Config:
     # Game Setup
     signups_open = False  # Pregame
     vote_channel = None
@@ -24,9 +24,25 @@ class Config():
 
     abstained_players = []
 
-    # Post count collection
+    # Post count related stuff
     post_counts = collections.defaultdict(lambda: collections.defaultdict(int))
+    posts_per_24_hours_threshold = None  # WIP for use in tracking post activity
+    posts_per_phase_threshold = None  # WIP for use in tracking post activity
 
-    # Constant:
+    # CONSTANTS:
     NOT_VOTING = "not voting"  # Refers to a state in which a player either hasn't voted or has unvoted.
     LINE_BREAK = "-" * 40 + "\n"
+
+    # Status & Alignment Framework: WIP doesn't currently account for extra Mafias.
+    STATUS_ALIVE = "Alive"
+    STATUS_DEAD = "Dead"
+    STATUS_REPLACED = "Replaced"
+    ALIGNMENT_TOWN = "Town"
+    ALIGNMENT_MAFIA = "Mafia"
+    ALIGNMENT_3RD_PARTY = "3rd Party"
+
+    # Discord Roles: WIP
+    ALIVE_ROLE = "Alive"
+    DEAD_ROLE = "Dead"
+    SPECTATOR_ROLE = "Spectator"
+    SPOILER_ROLE = "Spoilers"
