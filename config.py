@@ -19,7 +19,7 @@ class Config:
     vote_count_number = 1
     votes = collections.OrderedDict()
     live_players = []
-    vote_since_last_count = 0
+    vote_since_last_count = 0  # seems to be unused.
     # start_time = datetime.now()  # Unused atm
 
     abstained_players = []
