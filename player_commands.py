@@ -76,7 +76,7 @@ class PlayerCommands(commands.Cog):
         Config.votes[ctx.author] = voted
 
         # DEBUG LOGS:
-        if prev_vote != Config.NOT_VOTING and current_vote != Config.NOT_VOTING:
+        """if prev_vote != Config.NOT_VOTING and current_vote != Config.NOT_VOTING:
             print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
             print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote.name} voter: {voter.name}')
         elif prev_vote == Config.NOT_VOTING:
@@ -84,7 +84,7 @@ class PlayerCommands(commands.Cog):
             print(f'Finishing vote - prev_vote: {prev_vote} current_vote: {current_vote.name} voter: {voter.name}')
         else:
             print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
-            print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote} voter: {voter.name}')
+            print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote} voter: {voter.name}')"""
 
         # await ctx.send(f"{ctx.author.name} has voted for {Config.votes[ctx.author].name}.")
         await ctx.send(f"{ctx.author.display_name} has voted for {Config.votes[ctx.author].display_name}.")
