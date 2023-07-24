@@ -21,7 +21,7 @@ class MafiaBot(commands.Bot):
         # Construct ordered vote count for each player voted.
         count = self.constructVoteCounts()
         # Create and send votecount message
-        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, current_vote)
+        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, prev_vote, current_vote)
 
         votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}\n\n"
         votecount_message += votecount_strings + "\n"
@@ -37,9 +37,9 @@ class MafiaBot(commands.Bot):
         votecount_sent = await Config.vote_channel.send(votecount_message)
 
         # Create and send gamechat message
-        vote_change = prev_vote if lynch_status is None else current_vote
+        vote_change = prev_vote if current_vote == Config.NOT_VOTING else current_vote  # lynch_status is None
         game_thread_message = self.returnLynchStatus(ctx, vote_change, lynch_status)
-        game_thread_message += f" - {votecount_sent.jump_url}"
+        game_thread_message += f": {votecount_sent.jump_url}"
         await Config.game_channel.send(game_thread_message)
 
         if check_if_end_day:
@@ -51,26 +51,29 @@ class MafiaBot(commands.Bot):
 
         Config.vote_count_number += 1
 
-    def createVoteCountMessage(self, count, changed_voter, current_vote):
+    def createVoteCountMessage(self, count, changed_voter, prev_vote, current_vote):
         votes_required = len(Config.signup_list) // 2 + 1
 
         votecount_chains = ''
         check_if_end_day = False
         changed_lynch_status = None
+        changed_vote_target = None
+        if current_vote == Config.NOT_VOTING:
+            changed_vote_target = prev_vote
+        else:
+            changed_vote_target = current_vote
 
         for voted, voters in count.items():
             remaining_votes = votes_required - len(voters)  # The number of votes remaining for a lynch
             lynch_status = '**LYNCH**' if remaining_votes == 0 else f"L-{remaining_votes}"
-            # voters_str = ', '.join(
-            #     [voter.name if voter is not changed_voter else f'**{voter.name}**' for voter in voters])
             voters_str = ', '.join(
                 [voter.display_name if voter is not changed_voter else f'**{voter.display_name}**' for voter in voters])
-            # votecount_chains += f"{voted.name}[{lynch_status}] - {voters_str}\n"
             votecount_chains += f"{voted.display_name}[{lynch_status}] - {voters_str}\n"
             if lynch_status == '**LYNCH**':
                 check_if_end_day = True
             # Lynch status of voted target
-            if voted is current_vote:
+            # if voted is current_vote:
+            if voted is changed_vote_target:
                 changed_lynch_status = lynch_status
 
         return votecount_chains, check_if_end_day, changed_lynch_status

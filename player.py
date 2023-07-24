@@ -2,11 +2,14 @@ import discord
 from config import Config
 
 class Player:
-    def __init__(self, member: discord.Member, status):
+    def __init__(self, member: discord.Member, status, signup_number):
         self.member = member  # Store Discord Info
-        self.name = member.name  # Stores member name as a backup when killing a player who has left the server.
+        self.id = member.id  # Uniquely identify the player.
         self.status = status  # Is the player Alive or Dead?
         self.vote = None  # This might not be worth using - it's more convenient having a dictionary for the VC.
+        self.signup_number = signup_number # For use when kicking a player who has left the server.
+
+        # WIP - Toggleable configurations
         self.give_spoilers_on_death = False  # WIP - Allow as an optional configuration in the future.
 
         # Currently unused - for use in helping mods check for prods & for post limiting
