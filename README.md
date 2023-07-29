@@ -36,6 +36,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Store current game info in a database so that it persists even after the bot is turned off and then back on.
 
+----IMPROVE EXCEPTION HANDLING - particularly in the database.
+
 -Make sure all commands offer error reports when you put incorrect parameters.  (I.e. If you try to %startgame without including the gamethread or votecount, let the user know what went wrong and what they should do.)
 
 -Look into creating a player class that stores the Discord object, living status, and (arguably) vote status.  We will also need the ability to replace them out or kill them even if they leave the server.  This is off the top of my head.
