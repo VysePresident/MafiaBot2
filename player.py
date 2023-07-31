@@ -10,7 +10,7 @@ role info, alignment, and post count to assist the corresponding future modules 
 
 import discord
 from config import Config
-import asyncio
+
 
 class Player:
     def __init__(self, member: discord.Member, status, signup_number=None, vote=Config.NOT_VOTING):

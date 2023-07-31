@@ -31,7 +31,6 @@ class MafiaBot(commands.Bot):
         count = self.constructVoteCounts()
         # Create and send votecount message
         votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, prev_vote, current_vote)
-
         votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}" \
                             f"\n\n"
         votecount_message += votecount_strings + "\n"
@@ -54,7 +53,6 @@ class MafiaBot(commands.Bot):
         if check_if_end_day:
             print("LOG 2: It is endDay my dudes")
             await Config.game_channel.send(f"{Config.LINE_BREAK}\nThe day has ended with a lynch.")
-            # await self.kill(self, ctx, current_vote)
             await Config.signup_list[current_vote].kill()  # Player.kill()
             alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
             await Config.game_channel.set_permissions(alive_role, send_messages=False)
@@ -88,7 +86,6 @@ class MafiaBot(commands.Bot):
             if lynch_status == '**LYNCH**':
                 check_if_end_day = True
             # Lynch status of voted target
-            # if voted is current_vote:
             if voted is changed_vote_target:
                 changed_lynch_status = lynch_status
 
@@ -144,31 +141,6 @@ class MafiaBot(commands.Bot):
                 count[voted] = []
                 count[voted].append(voter)
         return count
-
-    @commands.command()
-    # @commands.has_permissions(Administrator=True)
-    async def kill(self, ctx, member: discord.Member):
-        print(f'Command kill: Author: {ctx.author.name} Target: {member.name}')  # DEBUG LOG
-
-        # if member.name in Config.live_players:
-        if member in Config.signup_list and Config.signup_list[member].status == Config.STATUS_ALIVE:
-            await Config.signup_list[member].kill()
-            """# Config.live_players.remove(member.name)
-            # Config.signup_list.remove(member)
-            Config.signup_list.pop(member)
-            alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-            dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
-            if dead_role is None:
-                dead_role = await ctx.guild.create_role(name="Dead")
-            if alive_role in member.roles:
-                await member.remove_roles(alive_role)
-            if dead_role not in member.roles:
-                print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")
-                # await member.add_roles(dead_role)  # To be added back later
-            await ctx.send(f"{member.display_name} has been removed from the game. NOTE: Dead role must be added manually for now")"""
-        else:
-            await ctx.send(f"{member.display_name} is not in the game or already removed.")
-
 
 # ROLE RELATED COMMAND
 """@bot.command()
