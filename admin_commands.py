@@ -13,7 +13,6 @@ import asyncio
 import collections
 import re
 from player import Player
-from db import DatabaseManager
 
 from config import Config
 
@@ -63,12 +62,8 @@ class AdminCommands(commands.Cog):
     async def unforcesignup(self, ctx, player_to_remove: discord.Member):
         """This function removes a user from the sign-up list during signups."""
         # DEBUG LOG
+        print(f'Command unforcesignup. Author: {ctx.author.name} Target: {player_to_remove.name}')
         if Config.signups_open:
-            print(f'Command unforcesignup. Author: {ctx.author.name} Target: {player_to_remove.name}')
-
-            """if player_to_remove in Config.signup_list:
-                Config.signup_list = [player for player in Config.signup_list if player.member != player_to_remove]
-                await ctx.send(f'{player_to_remove.display_name} has been removed from the signup list.')"""
             if player_to_remove in Config.signup_list:
                 removed_player = Config.signup_list.pop(player_to_remove)
                 await ctx.send(f'{removed_player.displayPlayerName()} has been removed from the signup list.')
@@ -79,8 +74,6 @@ class AdminCommands(commands.Cog):
             await ctx.send(f"Sign ups are currently closed.")
             return
 
-    # WIP - When it adds a player to live_players, instead make sure it's given "Config.ALIVE_STATUS" instead.
-    # WIP - The mentions should probably work since they get the keys.
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def startgame(self, ctx, game_channel_param: discord.TextChannel, vote_channel_param: discord.TextChannel,
@@ -104,24 +97,13 @@ class AdminCommands(commands.Cog):
         if Config.game_channel is None or Config.vote_channel is None:
             await ctx.send('One or both channels are incorrect.')
             return
-        """alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-        if alive_role is None:
-            alive_role = await ctx.guild.create_role(name="Alive")"""
-        # WIP - Set up the signup_order for storage in the database. Might not be necessary tbh.
-        signup_order = 1
         for user in Config.signup_list:
-            # Config.signup_list[user].status = Config.STATUS_ALIVE
             print(f"This is user: {user.display_name} This is status: {Config.signup_list[user].status}")
-            # Config.signup_list[user].signup_number = signup_order
-            # signup_order += 1
             member = ctx.guild.get_member(user.id)  # Confirm member is still in server
             if member is not None:
                 await Config.signup_list[member].activate()
                 print(f"NEW: This is user: {user.display_name} This is status: {Config.signup_list[user].status}")
-                # await member.add_roles(alive_role)
-                ### Config.live_players.append(member.name)
-                # Config.signup_list[member].status = Config.STATUS_ALIVE
-                # Config.player_list[member] = Config.signup_list[member]
+
         game_players = "\n".join([user.mention for user in Config.signup_list])
         await Config.game_channel.send(f'The game has started with the following players:\n{game_players}')
 
@@ -139,10 +121,6 @@ class AdminCommands(commands.Cog):
         print(f"Command newday Author {ctx.author.name}")
         day_length = Config.global_day_length
         Config.newDay()
-        """Config.day_number += 1
-        Config.vote_count_number = 1
-        # Config.votes = {}
-        Config.votesReset()"""
 
         alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
         await Config.game_channel.set_permissions(alive_role, send_messages=True)
@@ -224,28 +202,6 @@ class AdminCommands(commands.Cog):
 
         # Reset all config values
         Config.configReset()
-        ####
-        """Config.signups_open = False  # Pregame
-        Config.vote_channel = None
-        Config.game_channel = None
-        Config.global_day_length = 1
-        Config.day_end_time = 1
-
-        Config.day_end_task_object = None
-
-        # Game Status
-        Config.day_number = 0
-        Config.signup_list.clear()  # Pre & Mid
-        Config.vote_count_number = 1
-        Config.votes = collections.OrderedDict()
-        Config.live_players = []
-        Config.vote_since_last_count = 0
-        # Config.start_time = datetime.now()  # Unused atm
-
-        Config.abstained_players = []
-
-        # Post count collection
-        Config.post_counts = collections.defaultdict(lambda: collections.defaultdict(int))"""
 
         await ctx.send("The game has ended.")
 
@@ -263,20 +219,9 @@ class AdminCommands(commands.Cog):
             Config.signup_list[new_member] = new_player
             await new_player.activate()
             await ctx.send(f'{new_player.displayPlayerName()} has been added to the game!')
-
-            # alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-            # await new_player.member.add_roles(alive_role)
-            # Config.signup_list[new_member] = new_player
-            # Config.live_players.append(new_player.displayPlayerName())  # Obsolete Debugging Code?  # UNNECESSARY DUE TO Player.Status
-            # await ctx.send(f'{new_player.displayPlayerName()} has been added to the game!')
-            """Config.signup_list.append(new_player)
-            await new_player.add_roles(alive_role)
-            Config.live_players.append(new_player.name)
-            await ctx.send(f'{new_player.display_name} has been added to the game!')"""
         else:
             await ctx.send(f'{new_member.display_name} is already in the game!')
 
-    # WIP - Check the signup index & Config.live_players
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def swapplayer(self, ctx, existing_player: discord.Member, new_player: discord.Member):
@@ -286,7 +231,6 @@ class AdminCommands(commands.Cog):
               f'new_player: {new_player.name}')
 
         if not Config.signups_open:
-            # if existing_player in Config.signup_list and existing_player.name in Config.live_players:
             if existing_player in Config.signup_list and Config.signup_list[existing_player].status == Config.STATUS_ALIVE:
                 if new_player not in Config.player_list:
                     Config.signup_list[existing_player].status = Config.STATUS_REPLACED
@@ -297,28 +241,12 @@ class AdminCommands(commands.Cog):
                             del new_signup_list[index]
                             new_signup_list.insert(index, (new_player, new_player_object))
                             break
-                    """new_player_list = list(Config.player_list.items())
-                    for index, (member, player) in enumerate(new_player_list):
-                        if member == existing_player:
-                            print(f"Playerlist member found!")
-                            del new_player_list[index]
-                            new_player_list.insert(index, (new_player, new_player_object))
-                            break"""
 
                     Config.signup_list = collections.OrderedDict(new_signup_list)
                     Config.player_list[new_player] = Config.signup_list[new_player]
                     alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
                     await existing_player.remove_roles(alive_role)
                     await new_player_object.member.add_roles(alive_role)
-                    """signup_index = Config.signup_list.index(existing_player)
-                    # $ Config.signup_list[signup_index] = new_player
-                    Config.signup_list[signup_index] = Player(new_player, Config.STATUS_ALIVE, len(Config.signup_list) + 1)
-                    playerlist_index = Config.live_players.index(existing_player.name)
-                    Config.live_players[playerlist_index] = new_player.name
-                    alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-                    await existing_player.remove_roles(alive_role)
-                    await new_player.add_roles(alive_role)
-                    # await ctx.send(f'{existing_player.name} has been replaced with {new_player.name}.')"""
                     await ctx.send(f'{existing_player.display_name} has been replaced with {new_player.display_name}.')
                 else:
                     await ctx.send(f'{new_player.display_name} is already in the game.')
@@ -360,49 +288,17 @@ class AdminCommands(commands.Cog):
             await ctx.send(
                 f"Time remaining: {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds.")
 
-    # Adjust to make this a wrapper around the "kill" function later.
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def modkill(self, ctx, member: discord.Member):
         print(f"Command modkill Author: {ctx.author.name} Target {member.name}")
-        # if member.name in Config.live_players:
         if member in Config.signup_list and Config.signup_list[member].status == Config.STATUS_ALIVE:
             print("Member is in Config.signup_list and has status Config.STATUS_ALIVE")
             prev_vote, current_vote, voter = await Config.signup_list[member].kill()  # Player.kill()
-            # Config.signup_list[member].kill()  # Player.kill()
-            # if prev_vote:
-            #     await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
-            # print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")  # Add dead role in kill() if good
-            # await ctx.send(
-            #    f"{member.display_name} has been removed from the game. NOTE: Dead role must be added manually for now")
+            await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         else:
+            print("Member was either not in the signup list or didn't have the alive status.")
             await ctx.send(f"{member.display_name} is not in the game or already removed.")
-            """# Config.live_players.remove(member.name)
-            # Config.signup_list.remove(member)
-            # Config.signup_list.pop(member)
-            # killed_player = Config.signup_list[member]
-            killed_player = Config.signup_list.pop(member)
-            killed_player.status = Config.STATUS_DEAD
-            alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
-            dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
-            if dead_role is None:
-                dead_role = await ctx.guild.create_role(name="Dead")
-            if alive_role in member.roles:
-                await member.remove_roles(alive_role)
-            if dead_role not in member.roles:
-                # Perform unvote operation - adjust to use the unvote function in the future.
-                if member in Config.votes:
-                    prev_vote = Config.votes.pop(member)
-                    current_vote = Config.NOT_VOTING
-                    voter = member
-                    await ctx.send(f"{ctx.author.display_name} has unvoted {prev_vote.display_name}.")
-                    await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
-                print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")
-                # await member.add_roles(dead_role)  # Add this back in the future if it works fine.
-            await ctx.send(f"{member.display_name} has been removed from the game. NOTE: Dead role must be added manually for now")"""
-        """else:
-            await ctx.send(f"{member.display_name} is not in the game or already removed.")"""
-        # await self.bot.kill(ctx, member)  # WIP - Configure modkill() and kill() to just use the same function
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -527,13 +423,6 @@ class AdminCommands(commands.Cog):
         Config.day_number = day
         Config.vote_count_number = 1
         await ctx.send(f"The new day is now {Config.day_number}")
-
-    # BUG TESTING COMMAND **ONLY**
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def liveplayers(self, ctx):
-        print(f"Command liveplayers Author: {ctx.author.name}")
-        await ctx.send("This is live_players:\n\n " + '\n'.join(Config.live_players))
 
     # BUG TESTING COMMAND **ONLY**
     """@commands.command()
