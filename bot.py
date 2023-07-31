@@ -1,3 +1,10 @@
+"""
+Author: Geo
+Date: July 29th, 2023
+
+This module currently handles votecount and related sub-functions and the kill command.
+"""
+
 import discord
 from discord.ext import commands
 import collections
@@ -5,15 +12,17 @@ from config import Config
 
 
 class MafiaBot(commands.Bot):
-    def __init__(self, command_prefix, token):
+    def __init__(self, command_prefix, token, dbManager=None):
         super().__init__(
             command_prefix=command_prefix,
             intents=discord.Intents.all()
         )
         self.token = token
+        self.dbManager = dbManager
 
     @commands.command()
     async def votecount(self, ctx, voter, prev_vote, current_vote):
+        """This function is responsible for constructing a votecount following a new vote"""
         # DEBUG LOG
         print(f'Command votecount: Author: {ctx.author.name} voter: {voter.name} prev_vote: {prev_vote} '
               f'current_vote: {current_vote}')
@@ -23,7 +32,8 @@ class MafiaBot(commands.Bot):
         # Create and send votecount message
         votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, prev_vote, current_vote)
 
-        votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}\n\n"
+        votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}" \
+                            f"\n\n"
         votecount_message += votecount_strings + "\n"
         votecount_message += self.findNotVoting(voter) + "\n"
         votecount_message += self.findChangedVote(voter, prev_vote, current_vote) + "\n"
@@ -31,7 +41,6 @@ class MafiaBot(commands.Bot):
         votecount_message += Config.LINE_BREAK + "\n"
         if check_if_end_day:
             print("LOG 1: It is endDay my dudes")
-            # votecount_message += f"**{current_vote.name} has been removed from the game**\n\n"
             votecount_message += f"**{current_vote.display_name} has been removed from the game**\n\n"
             votecount_message += f"**Night {Config.day_number + 1} begins now!**\n\n"
         votecount_sent = await Config.vote_channel.send(votecount_message)
@@ -45,16 +54,23 @@ class MafiaBot(commands.Bot):
         if check_if_end_day:
             print("LOG 2: It is endDay my dudes")
             await Config.game_channel.send(f"{Config.LINE_BREAK}\nThe day has ended with a lynch.")
-            await self.kill(self, ctx, current_vote)
+            # await self.kill(self, ctx, current_vote)
+            await Config.signup_list[current_vote].kill()  # Player.kill()
             alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
             await Config.game_channel.set_permissions(alive_role, send_messages=False)
+            Config.day_end_task_object.cancel()
 
         Config.vote_count_number += 1
 
     def createVoteCountMessage(self, count, changed_voter, prev_vote, current_vote):
+        """
+        This function returns the standard votecount message.  If a lynch has been achieved,
+        the main votecount function will handle the remainder of the task.
+        """
         votes_required = len(Config.signup_list) // 2 + 1
-
         votecount_chains = ''
+        if not count:
+            votecount_chains = "(None)\n"
         check_if_end_day = False
         changed_lynch_status = None
         changed_vote_target = None
@@ -79,11 +95,11 @@ class MafiaBot(commands.Bot):
         return votecount_chains, check_if_end_day, changed_lynch_status
 
     def findNotVoting(self, changed_voter):
+        """This function constructs the "Not Voting" section of the votecount message."""
         not_voting_message = ''
         not_voting = [player for player in Config.signup_list if player not in Config.votes.keys()]
         if len(not_voting) > 0:
             not_voting_message += f"Not Voting - "
-            # not_voting_message += ', '.join([player.name if player is not changed_voter else f'**{player.name}**' for player in not_voting])
             not_voting_message += ', '.join([player.display_name if player is not changed_voter else f'**{player.display_name}**' for player in not_voting])
         else:
             not_voting_message += f"Not Voting - (None)"
@@ -91,35 +107,35 @@ class MafiaBot(commands.Bot):
         return not_voting_message
 
     def returnLynchStatus(self, ctx, voted, lynch_status):
+        """This function returns a message containing the lynched status to be used in the game thread"""
         if lynch_status == "**LYNCH**":
-            # return f'{voted.name} has been lynched!'
             return f'{voted.display_name} has been lynched!'
         elif lynch_status is None:
-            # return f'{voted.name} has zero votes'
             return f'{voted.display_name} has zero votes'
         else:
-            # return f'{voted.name} is {lynch_status}'
             return f'{voted.display_name} is {lynch_status}'
 
     def findChangedVote(self, voter, prev_vote, current_vote):
+        """This function constructs the "Changed Vote" section of the votecount"""
         changed_vote_message = '__CHANGE__: '
         if current_vote == Config.NOT_VOTING:
-            # changed_vote_message += f'{voter.name} has unvoted {prev_vote.name}'
-            changed_vote_message += f'{voter.display_name} has unvoted {prev_vote.display_name}'
+            changed_vote_message += f'{voter.display_name} has unvoted *{prev_vote.display_name}*'
         elif prev_vote == Config.NOT_VOTING:
-            # changed_vote_message += f'{voter.name} has switched from {Config.NOT_VOTING} to voting {current_vote.name}'
-            changed_vote_message += f'{voter.display_name} has switched from {Config.NOT_VOTING} to voting {current_vote.display_name}'
+            changed_vote_message += f'{voter.display_name} has switched from *{Config.NOT_VOTING}* ' \
+                                    f'to voting *{current_vote.display_name}*'
         else:
-            # changed_vote_message += f'{voter.name} has switched their vote from {prev_vote.name} to {current_vote.name}'
-            changed_vote_message += f'{voter.display_name} has switched their vote from {prev_vote.display_name} to {current_vote.display_name}'
+            changed_vote_message += f'{voter.display_name} has switched their vote from ' \
+                                    f'*{prev_vote.display_name}* to *{current_vote.display_name}*'
         changed_vote_message += "\n"
         return changed_vote_message
 
     def playersNeededToLynch(self):
+        """This method returns the number of votes needed to lynch another player."""
         votes_required = len(Config.signup_list) // 2 + 1
         return f"*With {len(Config.signup_list)} alive, it takes {votes_required} to lynch.*\n"
 
     def constructVoteCounts(self):
+        """This subfunction of votecount uses the Config.votes dictionary to construct the individual votecounts."""
         count = collections.OrderedDict()
         for voter, voted in Config.votes.items():
             if voted in count:
@@ -134,9 +150,12 @@ class MafiaBot(commands.Bot):
     async def kill(self, ctx, member: discord.Member):
         print(f'Command kill: Author: {ctx.author.name} Target: {member.name}')  # DEBUG LOG
 
-        if member.name in Config.live_players:
-            Config.live_players.remove(member.name)
-            Config.signup_list.remove(member)
+        # if member.name in Config.live_players:
+        if member in Config.signup_list and Config.signup_list[member].status == Config.STATUS_ALIVE:
+            await Config.signup_list[member].kill()
+            """# Config.live_players.remove(member.name)
+            # Config.signup_list.remove(member)
+            Config.signup_list.pop(member)
             alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
             dead_role = discord.utils.get(ctx.guild.roles, name="Dead")
             if dead_role is None:
@@ -145,11 +164,9 @@ class MafiaBot(commands.Bot):
                 await member.remove_roles(alive_role)
             if dead_role not in member.roles:
                 print(f"!!!KILL SANITY CHECK!!!: {member.name} should receive DEAD role")
-                # await member.add_roles(dead_role)
-            # await ctx.send(f"{member.name} has been removed from the game. NOTE: Dead role must be added manually for now")
-            await ctx.send(f"{member.display_name} has been removed from the game. NOTE: Dead role must be added manually for now")
+                # await member.add_roles(dead_role)  # To be added back later
+            await ctx.send(f"{member.display_name} has been removed from the game. NOTE: Dead role must be added manually for now")"""
         else:
-            # await ctx.send(f"{member.name} is not in the game or already removed.")
             await ctx.send(f"{member.display_name} is not in the game or already removed.")
 
 
