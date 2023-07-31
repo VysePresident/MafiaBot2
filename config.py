@@ -31,10 +31,8 @@ class Config:
 
     # Game Status
     day_number = 0
-    # signup_list = []  # Pre & Mid
     vote_count_number = 1
     votes = collections.OrderedDict()
-    live_players = []
     vote_since_last_count = 0  # seems to be unused.
     # start_time = datetime.now()  # Unused atm
 
@@ -84,22 +82,23 @@ class Config:
     def appendPlayer(self, new_player):
         """Add a player to the game - i.e. signup"""
         Config.signup_list[new_player.member] = new_player
-        # Config.players_by_member[new_player.member] = new_player
-        # Config.players_by_order[new_player.signup_number] = new_player
 
-    # WIP - Assumes that the argument is a Player.
+    # WIP - Non-functional - Assumes that the argument is a Player.
     @classmethod
     def removePlayer(self, player_to_remove):
         """Remove a player from the game - i.e. unsignup"""
         Config.players_by_member.pop(player_to_remove.member, None)
         Config.players_by_order.pop(player_to_remove.member, None)
+
     @classmethod
     def convertDaysToSeconds(self, days):
         return days * 24 * 60 * 60
+
     @classmethod
     def convertSecondsToDays(self, seconds):
         return ((seconds / 24) / 60) / 60
 
+    # WIP - Non-functional and likely no longer needed.
     @classmethod
     def organize_signup_list(cls, player=None, position=None):
         """Use this function to organize the list based on the entries in the database"""
@@ -123,7 +122,6 @@ class Config:
         # signup_list = []  # Pre & Mid
         Config.vote_count_number = 1
         Config.votes.clear()
-        Config.live_players = []  # Obsolete now that Player.status is a thing?
         Config.vote_since_last_count = 0  # seems to be unused.
         # start_time = datetime.now()  # Unused atm
 
