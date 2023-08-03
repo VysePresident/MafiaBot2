@@ -2,7 +2,7 @@
 Author: Geo
 Date: July 29th, 2023
 
-This module currently handles votecount and related sub-functions and the kill command.
+This module currently handles votecount and related sub-functions.
 """
 
 import discord
