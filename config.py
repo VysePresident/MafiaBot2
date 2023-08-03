@@ -22,6 +22,7 @@ class Config:
     game_host = None  # Currently unused, but useful as a key. Might be useful for separating admin/host perms.
     guild = None  # Currently not used, may use as a key instead. Logically implies one game per guild.
     signups_open = False  # Pregame
+    game_open = False
     vote_channel = None
     game_channel = None
     global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
@@ -110,6 +111,7 @@ class Config:
         Config.game_host = None  # Currently unused, but useful as a key. Might be useful for separating admin/host perms.
         Config.guild = None  # Currently not used, may use as a key instead. Logically implies one game per guild.
         Config.signups_open = False  # Pregame
+        Config.game_open = False
         Config.vote_channel = None
         Config.game_channel = None
         Config.global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
@@ -119,7 +121,6 @@ class Config:
 
         # Game Status
         Config.day_number = 0
-        # signup_list = []  # Pre & Mid
         Config.vote_count_number = 1
         Config.votes.clear()
         Config.vote_since_last_count = 0  # seems to be unused.

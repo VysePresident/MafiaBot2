@@ -69,6 +69,9 @@ class PlayerCommands(commands.Cog):
         if ctx.author in Config.votes and Config.votes[ctx.author] == voted:
             await ctx.send("You've already voted for this player.")
             return
+        if not Config.game_open:
+            await ctx.send("You cannot vote if there is no open game!")
+            return
         if ctx.channel != Config.game_channel:
             await ctx.send("You can only vote in the game chat.")
             return
@@ -104,7 +107,9 @@ class PlayerCommands(commands.Cog):
         """This function is used when a member wishes to remove their vote without replacing it."""
         # DEBUG LOG
         print(f'command unvote: ctx.author: {ctx.author.name} has unvoted {Config.votes[ctx.author]}')
-
+        if not Config.game_open:
+            await ctx.send("You cannot vote if there is no open game!")
+            return
         if ctx.channel != Config.game_channel:
             await ctx.send("You can only vote in the game chat.")
             return
@@ -123,6 +128,9 @@ class PlayerCommands(commands.Cog):
         # DEBUG
         print(f'command time: ctx.author: {ctx.author.name} used %time')
 
+        if not Config.game_open:
+            await ctx.send("No game is currently open!")
+            return
         if Config.day_end_time is None:
             await ctx.send("The game hasn't started yet.")
         else:
@@ -136,7 +144,6 @@ class PlayerCommands(commands.Cog):
                 # DEBUG LOG
                 print(f'RESULT of {ctx.author.name} using %time: '
                       f'Time remaining: {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds.')
-
                 await ctx.send(
                     f"Time remaining: {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds.")
 
@@ -144,32 +151,36 @@ class PlayerCommands(commands.Cog):
     async def playerlist(self, ctx):
         # DEBUG
         print(f'command playerlist: ctx.author: {ctx.author.name} used %playerlist')
-        alive_players = []
-        dead_players = []
-        index = 0
-        for member, player in Config.player_list.items():
-            print(f"This is member.name: {member.name} player.status: {player.status}")
-            if player.status == Config.STATUS_ALIVE:
-                index += 1
-                print(f"Player is alive! This is index: {index}")
-                alive_players.append(f"{index}\. {member.display_name}")
-                print(f"Appended: {member.display_name} at: {index}")
-            if player.status == Config.STATUS_DEAD:
-                index += 1
-                print(f"Player is dead! This is index: {index}")
-                dead_players.append(f"{index}\. {member.display_name}")
-                print(f"Appended: {member.display_name} at: {index}")
+        if Config.game_open:
+            alive_players = []
+            dead_players = []
+            index = 0
+            for member, player in Config.player_list.items():
+                print(f"This is member.name: {member.name} player.status: {player.status}")
+                if player.status == Config.STATUS_ALIVE:
+                    index += 1
+                    print(f"Player is alive! This is index: {index}")
+                    alive_players.append(f"{index}\. {member.display_name}")
+                    print(f"Appended: {member.display_name} at: {index}")
+                if player.status == Config.STATUS_DEAD:
+                    index += 1
+                    print(f"Player is dead! This is index: {index}")
+                    dead_players.append(f"{index}\. {member.display_name}")
+                    print(f"Appended: {member.display_name} at: {index}")
 
-        playerlist_string = ''
-        if len(alive_players) > 0:
-            playerlist_string += "\n\n__**Alive Players**__\n\n" + '\n'.join(alive_players) + '\n'
+            playerlist_string = ''
+            if len(alive_players) > 0:
+                playerlist_string += "\n\n__**Alive Players**__\n\n" + '\n'.join(alive_players) + '\n'
+            else:
+                playerlist_string += "\n__**Alive Players**__\n" + '\n (None)'
+            if len(dead_players) > 0:
+                playerlist_string += "\n__**Dead Players**__\n\n" + '\n'.join(dead_players)
+            else:
+                playerlist_string += "\n__**Dead Players**__\n" + '\n (None)'
+            await ctx.send(f"{playerlist_string}")
+            return
         else:
-            playerlist_string += "\n__**Alive Players**__\n" + '\n (None)'
-        if len(dead_players) > 0:
-            playerlist_string += "\n__**Dead Players**__\n\n" + '\n'.join(dead_players)
-        else:
-            playerlist_string += "\n__**Dead Players**__\n" + '\n (None)'
-        await ctx.send(f"{playerlist_string}")
+            await ctx.send("No game is currently open!")
 
 
 async def setup(bot):
