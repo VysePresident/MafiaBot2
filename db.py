@@ -128,7 +128,8 @@ class DatabaseManager:
 
                 seconds_remaining = phase_end_time - t.time()
                 print(f"There are currently {seconds_remaining} seconds_remaining in the phase.")
-                Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(seconds_remaining))
+                # Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(seconds_remaining))
+                Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(seconds_remaining))
 
             # Set up players and votes
             cursorPlayers = self.cnx.cursor(buffered=True)
@@ -160,7 +161,7 @@ class DatabaseManager:
             return "SUCCESS"
         return "UNNEEDED"
 
-    async def end_day_after_delay(self, phase_length_in_seconds):
+    """async def end_day_after_delay(self, phase_length_in_seconds):
         new_day_length = phase_length_in_seconds
         Config.day_end_time = t.time() + new_day_length
         try:
@@ -170,7 +171,7 @@ class DatabaseManager:
             await Config.game_channel.send("The day has ended due to time running out.")
             return
         except asyncio.CancelledError:
-            print("Day phase time limit canceled!")
+            print("Day phase time limit canceled!")"""
 
     def db_startsignup(self, guild_id, signups_open, game_host_id):
         """This function stores the host_id, guild_id, and signups_open state after signups are opened"""
