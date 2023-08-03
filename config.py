@@ -118,6 +118,9 @@ class Config:
     @classmethod
     def configReset(cls):
         """This function resets all the static values of the Config class back to their defaults"""
+        if Config.day_end_task_object:
+            Config.day_end_task_object.cancel()
+
         Config.game_host = None  # Currently unused, but useful as a key. Might be useful for separating admin/host perms.
         Config.guild = None  # Currently not used, may use as a key instead. Logically implies one game per guild.
         Config.signups_open = False  # Pregame
