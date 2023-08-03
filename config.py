@@ -10,9 +10,11 @@ In a future update, I will likely look into implementing the possibility of runn
 that point, each game will need its own instance of this class.
 """
 
+import discord
 import asyncio
 from datetime import datetime
 import collections
+import time as t
 
 
 class Config:
@@ -25,9 +27,9 @@ class Config:
     game_open = False
     vote_channel = None
     game_channel = None
+
     global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
     day_end_time = 1
-
     day_end_task_object = None
 
     # Game Status
@@ -99,10 +101,18 @@ class Config:
     def convertSecondsToDays(self, seconds):
         return ((seconds / 24) / 60) / 60
 
-    # WIP - Non-functional and likely no longer needed.
     @classmethod
-    def organize_signup_list(cls, player=None, position=None):
-        """Use this function to organize the list based on the entries in the database"""
+    async def end_day_after_delay(cls, day_length_in_seconds):
+        # new_day_length = day_length * 24 * 60 * 60
+        Config.day_end_time = t.time() + day_length_in_seconds
+        try:
+            await asyncio.sleep(day_length_in_seconds)
+            alive_role = discord.utils.get(Config.game_channel.guild.roles, name="Alive")
+            await Config.game_channel.set_permissions(alive_role, send_messages=False)
+            await Config.game_channel.send("The day has ended due to time running out.")
+            return
+        except asyncio.CancelledError:
+            print("Day phase time limit canceled!")
 
     # WIP - Consider how resetting Config affects the database info.
     @classmethod
@@ -114,9 +124,9 @@ class Config:
         Config.game_open = False
         Config.vote_channel = None
         Config.game_channel = None
-        Config.global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
-        Config.day_end_time = 1
 
+        Config.global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
+        Config.day_end_time = 1  # Time in days - rework to time in seconds
         Config.day_end_task_object = None
 
         # Game Status

@@ -26,6 +26,8 @@ class AdminCommands(commands.Cog):
     async def startsignup(self, ctx):
         print(f"Command startsignup: Author: {ctx.author.name} Initial State: {Config.signups_open}")
         if not Config.game_open:
+            Config.configReset()
+            Config.game_host = ctx.author
             Config.signups_open = True
             Config.signup_list.clear()
             print(f"startsignup Result: Author: {ctx.author.name} Final State: {Config.signups_open}")
@@ -140,13 +142,14 @@ class AdminCommands(commands.Cog):
             day_start_msg = await Config.game_channel.send(f"Day {Config.day_number} has begun. It will end in {day_length} days.")
             await day_start_msg.pin()
 
-            Config.day_end_time = t.time() + day_length * 24 * 60 * 60
-            Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(day_length))
+            Config.day_end_time = t.time() + day_length * 24 * 60 * 60  # WIP - day_length should already be in seconds
+            # Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(day_length))
+            Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(Config.convertDaysToSeconds(day_length)))
             return
         else:
             await ctx.send("No open game found!")
 
-    async def end_day_after_delay(self, day_length):
+    """async def end_day_after_delay(self, day_length):
         new_day_length = day_length * 24 * 60 * 60
         Config.day_end_time = t.time() + new_day_length
         try:
@@ -156,7 +159,7 @@ class AdminCommands(commands.Cog):
             await Config.game_channel.send("The day has ended due to time running out.")
             return
         except asyncio.CancelledError:
-            print("Day phase time limit canceled!")
+            print("Day phase time limit canceled!")"""
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -306,7 +309,9 @@ class AdminCommands(commands.Cog):
                     await ctx.send(f'Invalid time format: {arg}. Will only accept one of these at end of cmd: "d/h/m".')
             Config.global_day_length = day_length_in_seconds / (24 * 60 * 60)
             Config.day_end_task_object.cancel()
-            Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(Config.global_day_length))
+            # Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(Config.global_day_length))
+            # Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(Config.global_day_length))
+            Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(day_length_in_seconds))
 
             new_day_length = Config.global_day_length * 24 * 60 * 60
             new_day_end_time = t.time() + new_day_length
