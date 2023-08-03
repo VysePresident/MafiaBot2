@@ -214,6 +214,7 @@ class AdminCommands(commands.Cog):
                     await member.remove_roles(spoiled_role)
 
             # Reset all config values
+            # Config.day_end_task_object.cancel()
             Config.configReset()
 
             await ctx.send("The game has ended.")
