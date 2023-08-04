@@ -60,6 +60,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Retain original playerlist except in case of replacements.
 
+-Should be able to close signups/game at any point. (Discourage accidental use and make sure they are aware it's not the preferred choice.)
+
 # BUGS (Bunny):
 
 -(Logged July 8th, 2023) - The %gamesetup command triggers rate-limiting constantly.  This lasts for ~10 seconds in the test server but can last 1-5 minutes in the actual Mafia server.  This is a serious problem and needs to be optimized somehow. 
