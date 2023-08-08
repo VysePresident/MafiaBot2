@@ -61,7 +61,6 @@ class Config:
 
     # CONSTANTS:
     NOT_VOTING = "not voting"  # Refers to a state in which a player either hasn't voted or has unvoted. 32 char max.
-    NO_VOTE_TO_ORDER = -1
     LINE_BREAK = "-" * 40 + "\n"
 
     # Status & Alignment Framework: WIP doesn't currently account for extra Mafias.
@@ -122,6 +121,7 @@ class Config:
         Config.game_open = False
         Config.vote_channel = None
         Config.game_channel = None
+        Config.player_channel = None
 
         Config.global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
         Config.day_end_time = 1  # Time in days - rework to time in seconds

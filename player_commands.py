@@ -101,8 +101,9 @@ class PlayerCommands(commands.Cog):
             print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
             print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote} voter: {voter.name}')"""
 
-        vote_order = 1 if Config.votes is None else len(Config.votes) + 1
-        Config.dbManager.db_vote(voter, current_vote, vote_order)
+        #vote_order = 1 if Config.votes is None else len(Config.votes) + 1
+        # Config.dbManager.db_vote(voter, current_vote, vote_order)
+        Config.dbManager.db_vote(voter, current_vote)
 
         await ctx.send(f"{ctx.author.display_name} has voted for {Config.votes[ctx.author].display_name}.")
         await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
