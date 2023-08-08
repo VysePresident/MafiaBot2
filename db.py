@@ -91,8 +91,8 @@ class DatabaseManager:
         # Restore from DB only if active game exists
         if active_game and self.cnx:
             for (guild_id, guild_name, host_id, host_name, signups_open, game_open, vote_channel_id, vote_channel_name,
-                 game_channel_id, game_channel_name, global_day_length_in_seconds, day_end_time, day_number,
-                 vote_count_number) in cursorConfig:
+                 game_channel_id, game_channel_name, player_list_channel_id, player_list_channel_name,
+                 global_day_length_in_seconds, day_end_time, day_number, vote_count_number) in cursorConfig:
 
                 # Get the game and vote channels given guild_id
                 Config.guild = discord.utils.get(self.bot.guilds, id=int(guild_id))
@@ -151,7 +151,7 @@ class DatabaseManager:
                 player_list = {}
                 signup_list = {}
                 for index, (player_id, player_name, player_status, sign_up_date, replacement_id, vote_id, vote_name,
-                            vote_order, vote_date) in enumerate(cursorPlayers, start=1):
+                            vote_date) in enumerate(cursorPlayers, start=1):
                     # Debugging code - add back?
                     """if index != signup_number:
                         print("UNEXPECTED BEHAVIOR! index != signup_number")"""
@@ -177,7 +177,6 @@ class DatabaseManager:
                           f"{voted.display_name if voted != Config.NOT_VOTING else voted}")
                     if voted != Config.NOT_VOTING:
                         Config.votes[player.member] = voted
-                        # votes[vote_order] = (member, voted)
                         votes[vote_date] = (member, voted)
 
                 # Construct Config.signup_list and Config.player_list
@@ -224,18 +223,17 @@ class DatabaseManager:
         """Store a player's info after they join."""
         vote_name = Config.NOT_VOTING
         vote_id = Config.NOT_VOTING
-        vote_order = -1
         replacement_id = Config.NO_REPLACEMENT
 
         query_signup = (
             f"INSERT INTO {self.database}.{Config.PLAYER_TABLE} (player_id, player_name, player_status, sign_up_date, "
-            f"replacement_id, vote_id, vote_name, vote_order)"
-            f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            f"replacement_id, vote_id, vote_name)"
+            f"VALUES (%s, %s, %s, %s, %s, %s, %s)"
         )
         try:
             with self.cnx.cursor() as cursor_forcesignup:
                 cursor_forcesignup.execute(query_signup, (str(member.id), member.name, status, datetime.datetime.now(),
-                                                          replacement_id, str(vote_id), vote_name, vote_order))
+                                                          replacement_id, str(vote_id), vote_name))
                 self.cnx.commit()
                 print("signup data stored!")
         except Exception as e:
@@ -306,17 +304,17 @@ class DatabaseManager:
             print(f"db_newday error occurred: {e}")
             self.cnx.rollback()
 
-    def db_vote(self, voter, vote_target, vote_order):
+    def db_vote(self, voter, vote_target):
         """This function stores information from placing a vote"""
         print("Entered db_vote")
         query_vote = (
             f"UPDATE {self.database}.{Config.PLAYER_TABLE} "
-            f"SET vote_id = %s, vote_name = %s, vote_order = %s, vote_date = %s"
+            f"SET vote_id = %s, vote_name = %s, vote_date = %s"
             f"WHERE player_id = %s"
         )
         try:
             with self.cnx.cursor() as cursor_vote:
-                cursor_vote.execute(query_vote, (str(vote_target.id), vote_target.name, vote_order,
+                cursor_vote.execute(query_vote, (str(vote_target.id), vote_target.name,
                                                  datetime.datetime.now(), str(voter.id)))
                 self.cnx.commit()
                 print("db_vote updated successfully.")
@@ -328,13 +326,12 @@ class DatabaseManager:
         """This function stores information from removing a vote"""
         query_unvote = (
             f"UPDATE {self.database}.{Config.PLAYER_TABLE} "
-            f"SET vote_id = %s, vote_name = %s, vote_order = %s, vote_time = NULL "
+            f"SET vote_id = %s, vote_name = %s, vote_date = NULL "
             f"WHERE player_id = %s "
         )
         try:
             with self.cnx.cursor() as cursor_unvote:
-                cursor_unvote.execute(query_unvote, (str(Config.NOT_VOTING), Config.NOT_VOTING,
-                                                     Config.NO_VOTE_TO_ORDER, str(member.id)))
+                cursor_unvote.execute(query_unvote, (str(Config.NOT_VOTING), Config.NOT_VOTING, str(member.id)))
                 self.cnx.commit()
                 print("Changed unvote info in DB")
         except Exception as e:
@@ -350,9 +347,9 @@ class DatabaseManager:
         )
         try:
             with self.cnx.cursor() as cursor_status_update:
-                cursor_status_update.execute(query_status_update, (player_status,
-                                                                   None if new_member is None else str(new_member.id),
-                                                                   str(member.id)))
+                cursor_status_update.execute(query_status_update,
+                                             (player_status, None if new_member is None else str(new_member.id),
+                                              str(member.id)))
                 self.cnx.commit()
                 print("db_playerStatusUpdate stored data successfully!")
         except Exception as e:
@@ -382,12 +379,12 @@ class DatabaseManager:
         """This function is used to remove a player from the game. Info is still stored for future reference."""
         query_kill = (
             f"UPDATE {self.database}.{Config.PLAYER_TABLE} "
-            f"SET vote_id = %s, vote_order = %s, player_status = %s"
+            f"SET vote_id = %s, player_status = %s"
             f"WHERE player_id = %s"
         )
         try:
             with self.cnx.cursor() as cursor_kill:
-                cursor_kill.execute(query_kill, (Config.NOT_VOTING, Config.NO_VOTE_TO_ORDER, Config.STATUS_DEAD,
+                cursor_kill.execute(query_kill, (Config.NOT_VOTING, Config.STATUS_DEAD,
                                                  member.id))
                 self.cnx.commit()
                 print(f"db_kill executed successfully!")

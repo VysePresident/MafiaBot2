@@ -78,7 +78,9 @@ class AdminCommands(commands.Cog):
             if player_to_remove in Config.signup_list:
                 removed_player = Config.signup_list.pop(player_to_remove)
                 print(f"{player_to_remove.display_name} has been removed!")
+
                 Config.dbManager.db_unsignup(player_to_remove)
+
                 await ctx.send(f'{removed_player.displayPlayerName()} has been removed from the signup list.')
             else:
                 await ctx.send(f'{player_to_remove.display_name} is not on the signup list.')
@@ -140,7 +142,7 @@ class AdminCommands(commands.Cog):
         if Config.game_open:
             print(f"Command newday Author {ctx.author.name}")
             day_length = Config.global_day_length
-            # Config.newDay()
+
             Config.day_number += 1
             Config.vote_count_number = 1
             Config.votesReset()
