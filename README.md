@@ -14,8 +14,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -User can still vote after day has ended if they have permissions to post in the thread.  Set game to "Night" and store in database.
 
--Remove vote_order field from the database.  Obsolete.
-
 -Split up Admin commands for removing a host/interacting with their game vs Host commands.
 
 -Track number of posts made in 24 hour intervals - w/ command for all users or just an individual user
@@ -82,6 +80,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 1) Features, changes, bug-fixes that need testing when bot is free:
 
 ### GEO (August 7th 2023) Listed:
+
+[implemented] Removed obsolete vote_order field from the database.
 
 [implemented] Player Class rework, database connection, and countless improvements, adjustments, and bugfixes.
 
