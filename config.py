@@ -21,12 +21,16 @@ class Config:
     # Game Setup
     bot = None
 
-    game_host = None  # Currently unused, but useful as a key. Might be useful for separating admin/host perms.
-    guild = None  # Currently not used, may use as a key instead. Logically implies one game per guild.
+    game_host = None
+    guild = None  # Primary key for a game in DB currently.
     signups_open = False  # Pregame
     game_open = False
+
     vote_channel = None
     game_channel = None
+    playerlist_channel = None
+    playerlist_message_object = None
+    original_playerlist_message_object = None
 
     global_day_length = 1  # Rename to "phase_length_in_seconds" and rework
     day_end_time = 1
@@ -172,6 +176,88 @@ class Config:
         print(f"This is Config.vote_count_number: {Config.vote_count_number}")
         print(f"This is Config.votes: {key} VOTE: '{value}'" for key, value in Config.votes.items())
         return
+
+    @classmethod
+    async def playerChannelUpdate(cls):
+        """This method will be used to update the player list based on Config.player_list"""
+        print("Calling Config.playerChannelUpdate() method")
+        if not Config.game_open:
+            print("No open game found!")
+            return
+        if not Config.playerlist_channel:
+            print("No playerlist channel found!")
+            return
+        if not Config.original_playerlist_message_object:
+            print("Creating Original playerlist message!")
+            Config.original_playerlist_message_object =\
+                await Config.playerlist_channel.send(Config.constructOriginalPlayerlistMessage())
+            Config.dbManager.db_original_playerlist_message(Config.original_playerlist_message_object)
+        if not Config.playerlist_message_object:
+            print("Creating Updated playerlist message!")
+            Config.playerlist_message_object = await Config.playerlist_channel.send(Config.updatePlayerlistMessage())
+            Config.dbManager.db_updated_playerlist_message(Config.playerlist_message_object)
+        else:
+            print("Editing Updated playerlist message!")
+            new_content = Config.updatePlayerlistMessage()
+            await Config.playerlist_message_object.edit(content=new_content)
+
+    @classmethod
+    def constructOriginalPlayerlistMessage(cls):
+        """This function constructs the original player list and stores it as an object in Config."""
+        """Currently, replaced out people are not accounted for."""
+        print("Helper command 'constructOriginalPlayerlistMessage' called")
+        if not Config.game_open:
+            print("No open game found!")
+            return
+        if not Config.playerlist_channel:
+            print("No playerlist channel found!")
+            return
+        index = 0
+        original_playerlist_message = ''
+        original_playerlist_message += "**Original Playerlist:**" + "\n\n"
+        for index, (member, player_data) in enumerate(Config.player_list.items(), start=1):
+            if player_data.status != Config.STATUS_REPLACED:
+                original_playerlist_message += f"{index}\. {member.display_name}" + "\n"
+        return original_playerlist_message
+
+    @classmethod
+    def updatePlayerlistMessage(cls):
+        """This helper function constructs the message to be posted in the playerlist channel"""
+        if not Config.game_open:
+            print("ERROR! No open game found!")
+            return
+        if not Config.playerlist_channel:
+            print("ERROR! No playerlist channel found!")
+            return
+        updated_playerlist_message = ''
+        print(f'method updatePlayerlistMessage called')
+        if Config.game_open:
+            alive_players = []
+            dead_players = []
+            index = 0
+            for member, player in Config.player_list.items():
+                print(f"This is member.name: {member.name} player.status: {player.status}")
+                if player.status == Config.STATUS_ALIVE:
+                    index += 1
+                    print(f"Player is alive! This is index: {index}")
+                    alive_players.append(f"{index}\. {member.display_name}")
+                    print(f"Appended: {member.display_name} at: {index}")
+                if player.status == Config.STATUS_DEAD:
+                    index += 1
+                    print(f"Player is dead! This is index: {index}")
+                    dead_players.append(f"{index}\. {member.display_name}")
+                    print(f"Appended: {member.display_name} at: {index}")
+
+            playerlist_string = ''
+            if len(alive_players) > 0:
+                playerlist_string += "\n\n__**Alive Players**__\n\n" + '\n'.join(alive_players) + '\n'
+            else:
+                playerlist_string += "\n__**Alive Players**__\n" + '\n (None)'
+            if len(dead_players) > 0:
+                playerlist_string += "\n__**Dead Players**__\n\n" + '\n'.join(dead_players)
+            else:
+                playerlist_string += "\n__**Dead Players**__\n" + '\n (None)'
+            return playerlist_string
 
     "==============================================================================================="
     "============================Non-Functional WIP Code Below======================================"
