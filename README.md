@@ -6,11 +6,13 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Improve the "changedaylength" function to take days, hours, minutes, and seconds simultaneously in any combination.
 
+-The %changedaylength() command should be possible to adjust in d/h/m simultaneously.  It should only use integer values.
+
+-%changedaylength should recite the numbers of hours/minutes/seconds left in the phase & cut those set at 0
+
 -Add "adjusttime" commands which adds (or subtracts) time from the current day phase only
 
 -%newday should recite the numbers of hours/minutes/seconds left in the phase, not 0.213oiyu432 days & cut those set at 0.
-
--%changedaylength should recite the numbers of hours/minutes/seconds left in the phase & cut those set at 0
 
 -User can still vote after day has ended if they have permissions to post in the thread.  Set game to "Night" and store in database.
 
@@ -24,7 +26,9 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Automate user post search in game thread somehow?
 
--The %changedaylength() command should be possible to adjust in d/h/m simultaneously.  It should only use integer values.
+-Track post counts and create a command that lists the number of posts from each user in the past **24 hours** (we can also allow the mod to adjust this time later).
+
+-Add a prod command possibly?  Consider user convenience when making it, but also the necessity of V/LA (Legitimate absences with proper notification) and players who won't be picked up by the warning system that nonetheless deserve a prod.
 
 -Post a votecount in game chat every 10 votes
 
@@ -40,11 +44,7 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -The bot should be able to track edits/deletions efficiently only from players with the "ALIVE" role in the game_thread.  
 
--Track post counts and create a command that lists the number of posts from each user in the past **24 hours** (we can also allow the mod to adjust this time later).
-
--Add a prod command possibly?  Consider user convenience when making it, but also the necessity of V/LA (Legitimate absences with proper notification) and players who won't be picked up by the warning system that nonetheless deserve a prod.
-
--AMBITIOUS/UNKNOWN - Create a "settings & configurations" webpage that opens on the user's localhost and allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
+-**MAJOR** AMBITIOUS/UNKNOWN - Create a "settings & configurations" dashboard that allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
 
 -AMBITIOUS - Implement Role PMs and game-running functionality.  (Significant endevor, will need to be plotted out in more detail later.  I would like to combine this with the webpage idea if possible, because I think that's a more convenient interface.)
 
@@ -52,17 +52,13 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Make sure all commands offer error reports when you put incorrect parameters.  (I.e. If you try to %startgame without including the gamethread or votecount, let the user know what went wrong and what they should do.)
 
--Look into creating a player class that stores the Discord object, living status, and (arguably) vote status.  We will also need the ability to replace them out or kill them even if they leave the server.  This is off the top of my head.
-
--Votes need to be related to the player id.  I think all votes should require a ping at this point tbh.
+-All votes should require a ping at this point tbh.
 
 -Game should automatically update playerlist thread with contents of %playerlist.  It should be possible to submit additional data (such as flipped alignment/role) to the bot for dead players
 
 -Set up logging so that errors are easier to locate
 
--Set up unit testing with Discord input/output so that tests can be automated efficiently.
-
--Start_Of_Day empty votecounts should still include the Not Voting Category
+-**MAJOR** Set up unit testing with Discord input/output so that tests can be automated efficiently.
 
 -It should be possible to remove a member and their vote from the game if they leave the server.
 
@@ -81,9 +77,15 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 ### GEO (August 7th 2023) Listed:
 
-[implemented] Removed obsolete vote_order field from the database.
+[implemented] Removed obsolete "vote_order" field from database.
 
-[implemented] Player Class rework, database connection, and countless improvements, adjustments, and bugfixes.
+[implemented] Start_Of_Day empty votecounts include full votecount information.
+
+[implemented] Votes are stored based on the player id.
+
+[implemented] Player Class rework, database connection, and countless improvements, adjustments, and bugfixes.  **Sign-up list is now a dictionary that contains members as keys and player objects with more information as values** 
+
+[implemented] Created playerlist, which stores the orignal list of players and all replacements.  Players are only put into signup_list if their status is Inactive (I.e. Signups but game still closed) or Alive.
 
 [implemented] Pin Start_Of_Day messages and votecounts.
 
@@ -181,7 +183,3 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 [implemented] - Link the votecount to the message of vote
 
 [implemented] - Bot doesn't track the order of which votes are placed
-
-
-
-
