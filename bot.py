@@ -96,13 +96,14 @@ class MafiaBot(commands.Bot):
 
         return votecount_chains, check_if_end_day, changed_lynch_status
 
-    def findNotVoting(self, changed_voter):
+    def findNotVoting(self, changed_voter=None):
         """This function constructs the "Not Voting" section of the votecount message."""
         not_voting_message = ''
         not_voting = [player for player in Config.signup_list if player not in Config.votes.keys()]
         if len(not_voting) > 0:
-            not_voting_message += f"Not Voting - "
-            not_voting_message += ', '.join([player.display_name if player is not changed_voter else f'**{player.display_name}**' for player in not_voting])
+            not_voting_message += f"Not Voting ({len(not_voting)}) - "
+            not_voting_message += ', '.join([player.display_name if player is not changed_voter
+                                             else f'**{player.display_name}**' for player in not_voting])
         else:
             not_voting_message += f"Not Voting - (None)"
         not_voting_message += "\n"
