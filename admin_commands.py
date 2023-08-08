@@ -148,8 +148,12 @@ class AdminCommands(commands.Cog):
             alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
             await Config.game_channel.set_permissions(alive_role, send_messages=True)
 
-            votecount_message = f"**Vote Count {Config.day_number}.0**\n\nNo votes yet."
-            votecount_message += "\n" + (40 * "-")
+            votecount_message = f"**Vote Count {Config.day_number}.0**" + "\n\n"
+            # votecount_message += f"\n\nNo votes yet."
+            votecount_message += self.bot.createVoteCountMessage({}, None, None, None)[0] + "\n"
+            votecount_message += self.bot.findNotVoting() + "\n"
+            votecount_message += self.bot.playersNeededToLynch()
+            votecount_message += (40 * "-")
             day_start_vote_msg = await Config.vote_channel.send(votecount_message)
             try:
                 await day_start_vote_msg.pin()
