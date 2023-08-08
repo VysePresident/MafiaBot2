@@ -68,10 +68,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -It should be possible to remove a member and their vote from the game if they leave the server.
 
--Use nicks instead of names where appropriate (votecounts, playerlists, signuplist, etc)
-
--Retain original playerlist except in case of replacements.
-
 -Should be able to close signups/game at any point. (Discourage accidental use and make sure they are aware it's not the preferred choice.)
 
 # BUGS (Bunny):
@@ -91,11 +87,16 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 [implemented] Pin Start_Of_Day messages and votecounts.
 
+[implemented] Use nicks instead of names where appropriate (votecounts, playerlists, signuplist, etc)
+
+[implemented] Retain original playerlist except in case of replacements.
+
 [bugfix] (Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
 
 [bugfix] (Logged 6/28/23) Need to completely remove time (and send an appropriate message) when thread ends.  Very minor.
 
 [bugfix] All moderater commands are now admin only
+
 
 ### GEO (July 18 2023) Listed:
 
