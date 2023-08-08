@@ -74,6 +74,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -(Maybe fixed?) Bot can't handle underscores and certain usernames.
 
+-(Logged August 8th, 2023) - Players who sign up in the exact same second will partially overwrite the other player & the first player will not be retrieved correctly from the database.  This is because they are sorted in a dictionary according to time.  Update the sort to make the value in the dictionary a list instead of a single value in order to contain duplicates.
+
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
 
