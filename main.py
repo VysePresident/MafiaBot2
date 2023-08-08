@@ -38,15 +38,16 @@ Config.dbManager = DatabaseManager(Config.username, Config.password, Config.db_h
 print(f'This is username: {Config.username} this is password: {Config.password}')
 print(f'This is host: {Config.db_host} this is database: {Config.database}')
 
+
 @bot.event
 async def on_ready():
 
     await bot.load_extension("admin_commands")
     await bot.load_extension("player_commands")
 
-    # Config.dbManager.connect()
-    # connResult = Config.dbManager.setConfigurations()
-    # print(f"THIS IS connResult: {connResult}")
+    await Config.dbManager.connect()
+    connResult = await Config.dbManager.setConfigurations()
+    print(f"THIS IS connResult: {connResult}")
 
     if bot.get_channel(1110103139065012244):
         channel = bot.get_channel(1110103139065012244)
@@ -54,6 +55,7 @@ async def on_ready():
 
     Config.bot = bot  # WIP - Laziest solution to connect player.kill() to votecount().  Figure out later.
     print("Bot is online")
+
 
 @bot.command()
 @commands.has_permissions(administrator=True)

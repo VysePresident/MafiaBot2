@@ -24,7 +24,9 @@ class PlayerCommands(commands.Cog):
         if Config.signups_open:
             if ctx.author not in Config.signup_list:
                 Config.signup_list[ctx.author] = Player(ctx.author, Config.STATUS_INACTIVE, len(Config.signup_list) + 1)
+                Config.dbManager.db_signup(Config.signup_list[ctx.author].member, Config.signup_list[ctx.author].status)
                 await ctx.send(f'Thank you for signing up, {ctx.author.display_name}!')
+
             else:
                 await ctx.send(f'You have already signed up, {ctx.author.display_name}!')
         else:
@@ -38,6 +40,7 @@ class PlayerCommands(commands.Cog):
         if Config.signups_open:
             if ctx.author in Config.signup_list:
                 player = Config.signup_list.pop(ctx.author)
+                Config.dbManager.db_unsignup(player.member)
                 await ctx.send(f'You have been removed from the sign up list, {player.displayPlayerName()}!')
             else:
                 await ctx.send(f'You are not on the sign up list, {ctx.author.display_name}!')
@@ -98,6 +101,9 @@ class PlayerCommands(commands.Cog):
             print(f'Finishing command vote: ctx.author: {ctx.author.name} and voted: {Config.votes[ctx.author].name}')
             print(f'Finishing vote - prev_vote: {prev_vote.name} current_vote: {current_vote} voter: {voter.name}')"""
 
+        vote_order = 1 if Config.votes is None else len(Config.votes) + 1
+        Config.dbManager.db_vote(voter, current_vote, vote_order)
+
         await ctx.send(f"{ctx.author.display_name} has voted for {Config.votes[ctx.author].display_name}.")
         await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         return
@@ -117,6 +123,8 @@ class PlayerCommands(commands.Cog):
             prev_vote = Config.votes.pop(ctx.author)
             current_vote = Config.NOT_VOTING
             voter = ctx.author
+
+            Config.dbManager.db_unvote(voter)
             await ctx.send(f"{ctx.author.display_name} has unvoted {prev_vote.display_name}.")
             await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
         else:

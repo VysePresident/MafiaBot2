@@ -60,7 +60,8 @@ class Config:
     PLAYER_TABLE = "Players"
 
     # CONSTANTS:
-    NOT_VOTING = "not voting"  # Refers to a state in which a player either hasn't voted or has unvoted.
+    NOT_VOTING = "not voting"  # Refers to a state in which a player either hasn't voted or has unvoted. 32 char max.
+    NO_VOTE_TO_ORDER = -1
     LINE_BREAK = "-" * 40 + "\n"
 
     # Status & Alignment Framework: WIP doesn't currently account for extra Mafias.
@@ -69,6 +70,7 @@ class Config:
     STATUS_INACTIVE = "Inactive"
     STATUS_REPLACED = "Replaced"
     STATUS_MODKILLED = "Modkilled"  # For use when implementing penalizing modkill functionality.
+    NO_REPLACEMENT = "No Replacement"
 
     ALIGNMENT_TOWN = "Town"
     ALIGNMENT_MAFIA = "Mafia"
@@ -86,16 +88,9 @@ class Config:
         """Add a player to the game - i.e. signup"""
         Config.signup_list[new_player.member] = new_player
 
-    # WIP - Non-functional - Assumes that the argument is a Player.
-    @classmethod
-    def removePlayer(self, player_to_remove):
-        """Remove a player from the game - i.e. unsignup"""
-        Config.players_by_member.pop(player_to_remove.member, None)
-        Config.players_by_order.pop(player_to_remove.member, None)
-
     @classmethod
     def convertDaysToSeconds(self, days):
-        return days * 24 * 60 * 60
+        return int(days * 24 * 60 * 60)
 
     @classmethod
     def convertSecondsToDays(self, seconds):
@@ -103,8 +98,8 @@ class Config:
 
     @classmethod
     async def end_day_after_delay(cls, day_length_in_seconds):
-        # new_day_length = day_length * 24 * 60 * 60
         Config.day_end_time = t.time() + day_length_in_seconds
+        Config.dbManager.db_end_day_after_delay(day_length_in_seconds)
         try:
             await asyncio.sleep(day_length_in_seconds)
             alive_role = discord.utils.get(Config.game_channel.guild.roles, name="Alive")
@@ -121,8 +116,8 @@ class Config:
         if Config.day_end_task_object:
             Config.day_end_task_object.cancel()
 
-        Config.game_host = None  # Currently unused, but useful as a key. Might be useful for separating admin/host perms.
-        Config.guild = None  # Currently not used, may use as a key instead. Logically implies one game per guild.
+        Config.game_host = None
+        Config.guild = None  # Primary key for the game, currently.
         Config.signups_open = False  # Pregame
         Config.game_open = False
         Config.vote_channel = None
@@ -151,13 +146,17 @@ class Config:
 
     @classmethod
     def votesReset(cls):
+        for member in Config.votes.keys():
+            Config.dbManager.db_unvote(member)
         Config.votes.clear()
+        # WIP - Database should clear the votes.
 
-    @classmethod
+    """@classmethod
     def newDay(cls):
         Config.day_number += 1
         Config.vote_count_number = 1
         Config.votesReset()
+        return Config.day_number, Config.vote_count_number,"""
 
     @classmethod
     def configReport(cls):
@@ -173,3 +172,14 @@ class Config:
         print(f"This is Config.vote_count_number: {Config.vote_count_number}")
         print(f"This is Config.votes: {key} VOTE: '{value}'" for key, value in Config.votes.items())
         return
+
+    "==============================================================================================="
+    "============================Non-Functional WIP Code Below======================================"
+    "==============================================================================================="
+
+    # WIP - Non-functional - Assumes that the argument is a Player.
+    @classmethod
+    def removePlayer(self, player_to_remove):
+        """Remove a player from the game - i.e. unsignup"""
+        Config.players_by_member.pop(player_to_remove.member, None)
+        Config.players_by_order.pop(player_to_remove.member, None)

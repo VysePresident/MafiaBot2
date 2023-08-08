@@ -24,13 +24,16 @@ class MafiaBot(commands.Bot):
     async def votecount(self, ctx, voter, prev_vote, current_vote):
         """This function is responsible for constructing a votecount following a new vote"""
         # DEBUG LOG
+        if voter is None:
+            return
         print(f'Command votecount: Author: {ctx.author.name} voter: {voter.name} prev_vote: {prev_vote} '
               f'current_vote: {current_vote}')
 
         # Construct ordered vote count for each player voted.
         count = self.constructVoteCounts()
         # Create and send votecount message
-        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(count, voter, prev_vote, current_vote)
+        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(
+            count, voter, prev_vote, current_vote)
         votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}" \
                             f"\n\n"
         votecount_message += votecount_strings + "\n"
@@ -59,6 +62,8 @@ class MafiaBot(commands.Bot):
             Config.day_end_task_object.cancel()
 
         Config.vote_count_number += 1
+
+        Config.dbManager.db_votecount()
 
     def createVoteCountMessage(self, count, changed_voter, prev_vote, current_vote):
         """
