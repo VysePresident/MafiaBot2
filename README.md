@@ -4,6 +4,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # FEATURES TO ADD:
 
+-Store game/playerlist/vote channels when using %gamesetup
+
 -Write a more detailed %help command.
 
 -Improve the "changedaylength" function to take days, hours, minutes, and seconds simultaneously in any combination.
@@ -35,8 +37,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 -Post a votecount in game chat every 10 votes
 
 -Use the End of Day Timer
-
--Generate Original Playerlist and Update playerlist Alive/Dead automatically.
 
 -<u>The code should be broken entirely into cogs which are loaded into the bot via extension, allowing the bot to be changed at runtime</u> - The main.py file should have no code except the extensions!  (And possibly include empty extensions based on what we're intended to fill out later.)
 
@@ -78,6 +78,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
+
+### GEO (August 8th, 2023) Listed:
+
+[implemented] Generate Original Playerlist and Update playerlist Alive/Dead automatically.
 
 ### GEO (August 7th 2023) Listed:
 
