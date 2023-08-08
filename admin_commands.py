@@ -92,7 +92,7 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def startgame(self, ctx, game_channel_param: discord.TextChannel, vote_channel_param: discord.TextChannel,
-                        day_length: int = 1):
+                        day_length: int = 1, playerlist_channel_param: discord.TextChannel = None):
         # DEBUG LOG
         print(f'Command startgame: Author: {ctx.author.name} game_ch: {game_channel_param} vc: {vote_channel_param} '
               f'day_length: {day_length}')
@@ -132,6 +132,15 @@ class AdminCommands(commands.Cog):
         await Config.vote_channel.send(vote_message)
 
         Config.dbManager.db_startgame(Config.game_channel, Config.vote_channel, Config.global_day_length)
+
+        if playerlist_channel_param:
+            await self.changeplayerlistthread(playerlist_channel_param)
+        else:
+            ctx.send(f"You did not choose to set the optional playerlist channel at the end of the command! "
+                     f"If you would like to set a playerlist to automatically update, use the comamnd:"
+                     f"```"
+                     f"%changeplayerlistthread"
+                     f"```")
 
         await self.newday(ctx, day_length)
         return
@@ -371,6 +380,7 @@ class AdminCommands(commands.Cog):
                 prev_vote, current_vote, voter = await Config.signup_list[member].kill()  # Player.kill()
                 if prev_vote is not None:
                     await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
+
             else:
                 print("Member was either not in the signup list or didn't have the alive status.")
                 await ctx.send(f"{member.display_name} is not in the game or already removed.")
@@ -404,6 +414,21 @@ class AdminCommands(commands.Cog):
             await Config.game_channel.send("This is now the game channel")
         else:
             await ctx.send("No open game found!")
+
+    async def changeplayerlistthread(self, new_playerlist_channel: discord.TextChannel):
+        """This method changes or sets the playerlist channel"""
+        if Config.game_open:
+            print(f"changeplayerlistthread called - new_playerlist_channel: {new_playerlist_channel.name}")
+            Config.playerlist_channel = new_playerlist_channel
+
+            Config.dbManager.db_changeplayerlistthread(new_playerlist_channel)
+
+            # await ctx.send(f"The playerlist channel is now {Config.playerlist_channel}")
+            await Config.playerChannelUpdate()
+            Config.dbManager.db_changeplayerlistthread(new_playerlist_channel)
+        else:
+            print("No open game found!")
+            # await ctx.send("No open game found!")
 
     @commands.command()
     @commands.has_permissions(administrator=True)

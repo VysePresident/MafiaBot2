@@ -148,10 +148,6 @@ class MafiaBot(commands.Bot):
                 count[voted].append(voter)
         return count
 
-
-    def playerChannelUpdate(self):
-        """This method will be used to update the player list based on Config.player_list"""
-
 # ROLE RELATED COMMAND
 """@bot.command()
 async def roleInfo(ctx, *, role: str):

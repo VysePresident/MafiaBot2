@@ -72,6 +72,8 @@ class Player:
                 f"{self.member.display_name} has been removed from the game. "
                 f"NOTE: Dead role must be added manually for now")
 
+            await Config.playerChannelUpdate()
+
             return prev_vote, current_vote, voter
 
     def display(self):
