@@ -4,6 +4,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # FEATURES TO ADD:
 
+-Write a more detailed %help command.
+
 -Improve the "changedaylength" function to take days, hours, minutes, and seconds simultaneously in any combination.
 
 -The %changedaylength() command should be possible to adjust in d/h/m simultaneously.  It should only use integer values.
