@@ -4,6 +4,20 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # FEATURES TO ADD:
 
+-Improve the "changedaylength" function to take days, hours, minutes, and seconds simultaneously in any combination.
+
+-Add "adjusttime" commands which adds (or subtracts) time from the current day phase only
+
+-%newday should recite the numbers of hours/minutes/seconds left in the phase, not 0.213oiyu432 days & cut those set at 0.
+
+-%changedaylength should recite the numbers of hours/minutes/seconds left in the phase & cut those set at 0
+
+-User can still vote after day has ended if they have permissions to post in the thread.  Set game to "Night" and store in database.
+
+-Remove vote_order field from the database.  Obsolete.
+
+-Split up Admin commands for removing a host/interacting with their game vs Host commands.
+
 -Track number of posts made in 24 hour intervals - w/ command for all users or just an individual user
 
 -Set posting limit in game thread per arbitrary time period (Default is 24 hours) w/ command to see how many posts left per user. (Going overboard should probably result in a slow mode role instead of locking you out?) 
@@ -24,6 +38,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -The bot should be able to host multiple different games simultaneously.  Look into "Sharding"?
 
+-Allow admins to set up a custom role & generic server configurations & defaults for when you implement multiple games. 
+
 -The bot should be able to track edits/deletions efficiently only from players with the "ALIVE" role in the game_thread.  
 
 -Track post counts and create a command that lists the number of posts from each user in the past **24 hours** (we can also allow the mod to adjust this time later).
@@ -33,8 +49,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 -AMBITIOUS/UNKNOWN - Create a "settings & configurations" webpage that opens on the user's localhost and allows them to adjust the game's configurations manually.  Will be useful for setting up full games and other advanced properties later on.  (I.e. Do you want your votecount in a thread, maybe.  If we have to go with that lol)
 
 -AMBITIOUS - Implement Role PMs and game-running functionality.  (Significant endevor, will need to be plotted out in more detail later.  I would like to combine this with the webpage idea if possible, because I think that's a more convenient interface.)
-
--Store current game info in a database so that it persists even after the bot is turned off and then back on.
 
 ----IMPROVE EXCEPTION HANDLING - particularly in the database.
 
@@ -49,8 +63,6 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 -Set up logging so that errors are easier to locate
 
 -Set up unit testing with Discord input/output so that tests can be automated efficiently.
-
--Pin Start_Of_Day empty votecounts.
 
 -Start_Of_Day empty votecounts should still include the Not Voting Category
 
@@ -68,22 +80,28 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -(Logged July 8th, 2023) - The %endgame command checks *every* player in the server.  Is there a way to optimize it? Keep in mind that mods will add and remove roles from people arbitrarily on occassion so it really does need to track *every* instance of the roles (Alive, Dead, Spectator, Spoiler), not just those created by the game.
 
--Bot can't handle underscores and certain usernames. (EDIT: I'm uncertain if this is an issue or not.
-
--Are all moderater commands admin only? (No - %kill and %votecount need some work) 
-
--(Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
-
--Logged(6/28/23) Need to completely remove time (and send an appropriate message) when thread ends.  Very minor.
+-(Maybe fixed?) Bot can't handle underscores and certain usernames.
 
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
 
-GEO (July 18 2023) Listed:
+### GEO (August 7th 2023) Listed:
+
+[implemented] Player Class rework, database connection, and countless improvements, adjustments, and bugfixes.
+
+[implemented] Pin Start_Of_Day messages and votecounts.
+
+[bugfix] (Logged 6/25/23) When adding player to game, vote count should note the changed requirements to lynch
+
+[bugfix] (Logged 6/28/23) Need to completely remove time (and send an appropriate message) when thread ends.  Very minor.
+
+[bugfix] All moderater commands are now admin only
+
+### GEO (July 18 2023) Listed:
 
 [implemented] - Start of day Bot post and vote count are now both automatically pinned.
 
-GEO (July 17 2023) Listed:
+### GEO (July 17 2023) Listed:
 
 [implemented] %votecount has been refactored and is now much more streamlined and easy to understand & adjust.
 
@@ -102,7 +120,7 @@ GEO (July 17 2023) Listed:
 [bugfix] - (Logged IN-GAME July 15th, 2023) - The %swapplayer command returns an error.
 
 
-GEO (July 8 2023) Listed:
+### GEO (July 8 2023) Listed:
 
 [implemented] - In-game lynch status message that follows a vote or unvote now also links to the votecount for ease of players exploring the vote history.
 
@@ -116,7 +134,7 @@ GEO (July 8 2023) Listed:
 [implemented] - Allow player swaps mid-game
 
 
-GEO (June 27 2023) Listed:
+### GEO (June 27 2023) Listed:
 
 [implemented] - Set up a category with standard channels and permissions for a new game including: 
 1) game-thread (All can see, alive can't post to start but can be enabled when Day starts.) 
@@ -128,7 +146,7 @@ GEO (June 27 2023) Listed:
 7) spec chat thread
 
 
-GEO (June 26 2023) Listed:
+### GEO (June 26 2023) Listed:
 
 [implemented] Clean up roles (Alive, Dead, Spec, Spoiled) after game ends.  Should be its own function, which is called when %endgame is called.
 
@@ -138,18 +156,18 @@ GEO (June 26 2023) Listed:
 
 [bugfix] - Playerlist is not cleared when using %endgame
 
-GEO (June 26 2023) Listed:
+### GEO (June 26 2023) Listed:
 
 [implemented] Fixed bug where changedaylength command would not change the length of the current day.
 
-GEO (June 25 2023) Listed:
+### GEO (June 25 2023) Listed:
 
 [implemented] Bot now uses dashes for the "start of day" count consistent with all other vote counts.
 
 [implemented] Requesting a votecount in-thread no longer increments the number.
 
 
-GEO (June 21 2023) Listed:
+### GEO (June 21 2023) Listed:
 
 [implemented] - The bot currently reacts to all unvotes with a message as if the unvoter were not voting anyone to begin with.  It still correctly removes the vote at least.
 
