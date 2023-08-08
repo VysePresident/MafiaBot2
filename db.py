@@ -88,11 +88,12 @@ class DatabaseManager:
         channel_info = None
         player_info = []
 
-        # Restore from DB only if active game exists
+        # Restore from DB only if active game exists - NOTE: This is way too long. It is very silly. Fix later.
         if active_game and self.cnx:
             for (guild_id, guild_name, host_id, host_name, signups_open, game_open, vote_channel_id, vote_channel_name,
                  game_channel_id, game_channel_name, player_list_channel_id, player_list_channel_name,
-                 global_day_length_in_seconds, day_end_time, day_number, vote_count_number) in cursorConfig:
+                 playerlist_original_msg_id, playerlist_updated_msg_id, global_day_length_in_seconds, day_end_time,
+                 day_number, vote_count_number) in cursorConfig:
 
                 # Get the game and vote channels given guild_id
                 Config.guild = discord.utils.get(self.bot.guilds, id=int(guild_id))
@@ -118,6 +119,16 @@ class DatabaseManager:
                     Config.vote_channel = discord.utils.get(Config.guild.channels, id=int(vote_channel_id))
                     if not Config.vote_channel:
                         print("Vote channel not found!")
+                    if player_list_channel_id:
+                        Config.playerlist_channel = discord.utils.get(Config.guild.channels,
+                                                                      id=int(player_list_channel_id))
+                        if playerlist_original_msg_id:
+                            # Config.original_playerlist_message_object = discord.utils.get((Config))
+                            Config.original_playerlist_message_object = \
+                                await Config.playerlist_channel.fetch(int(playerlist_original_msg_id))
+                        if playerlist_updated_msg_id:
+                            Config.playerlist_message_object = \
+                                await Config.playerlist_channel.fetch(int(playerlist_updated_msg_id))
 
                     # Set this up
                     time_left_in_phase = (day_end_time - datetime.datetime.now()).total_seconds()
@@ -379,12 +390,12 @@ class DatabaseManager:
         """This function is used to remove a player from the game. Info is still stored for future reference."""
         query_kill = (
             f"UPDATE {self.database}.{Config.PLAYER_TABLE} "
-            f"SET vote_id = %s, player_status = %s"
+            f"SET vote_id = %s, player_status = %s, vote_name = %s"
             f"WHERE player_id = %s"
         )
         try:
             with self.cnx.cursor() as cursor_kill:
-                cursor_kill.execute(query_kill, (Config.NOT_VOTING, Config.STATUS_DEAD,
+                cursor_kill.execute(query_kill, (Config.NOT_VOTING, Config.STATUS_DEAD, Config.NOT_VOTING,
                                                  member.id))
                 self.cnx.commit()
                 print(f"db_kill executed successfully!")
@@ -466,6 +477,58 @@ class DatabaseManager:
         except Exception as e:
             print(f"db_changevotethread error: {e}")
             self.cnx.rollback()
+
+    def db_changeplayerlistthread(self, new_playerlist_thread):
+        """This function is used to swap the game text channel to another text channel"""
+        print("db_changeplayerlistthread called")
+        query_change_playerlist_thread = (
+            f"UPDATE {self.database}.{Config.CONFIG_TABLE} "
+            f"SET playerlist_channel_id = %s, playerlist_channel_name = %s "
+            f"WHERE guild_id = %s"
+        )
+        try:
+            with self.cnx.cursor() as cursor_change_game_thread:
+                cursor_change_game_thread.execute(query_change_playerlist_thread, (str(new_playerlist_thread.id),
+                                                                             new_playerlist_thread.name,
+                                                                             str(Config.guild.id)))
+                self.cnx.commit()
+                print(f"db_changeplayerlistthread success!")
+        except Exception as e:
+            print(f"db_changeplayerlistthread error: {e}")
+            self.cnx.rollback()
+
+    def db_original_playerlist_message(self, message: discord.Message):
+        """This function takes a message representing the original playerlist and stores the message id"""
+        query_original_playerlist_messsge = (
+            f"UPDATE {self.database}.{Config.CONFIG_TABLE} "
+            f"SET playerlist_original_msg_id = %s "
+            f"WHERE guild_id = %s"
+        )
+        try:
+            with self.cnx.cursor() as cursor_original_playerlist_messsge:
+                cursor_original_playerlist_messsge.execute(query_original_playerlist_messsge,
+                                                           (str(message.id), str(Config.guild.id)))
+                self.cnx.commit()
+                print(f"db_changeplayerlistthread success!")
+        except Exception as e:
+            print(f"db_changeplayerlistthread error: {e}")
+
+    def db_updated_playerlist_message(self, message: discord.Message):
+        """This function takes a message representing the original playerlist and stores the message id"""
+        print("db_updated_playerlist_message called")
+        query_updated_playerlist_message = (
+            f"UPDATE {self.database}.{Config.CONFIG_TABLE} "
+            f"SET playerlist_updated_msg_id = %s "
+            f"WHERE guild_id = %s"
+        )
+        try:
+            with self.cnx.cursor() as cursor_original_playerlist_messsge:
+                cursor_original_playerlist_messsge.execute(query_updated_playerlist_message,
+                                                           (str(message.id), str(Config.guild.id)))
+                self.cnx.commit()
+                print(f"db_updated_playerlist_message success!")
+        except Exception as e:
+            print(f"db_updated_playerlist_message error: {e}")
 
     def db_changeday(self, new_day_number):
         """This function is used to change the current day"""
