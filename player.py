@@ -62,6 +62,8 @@ class Player:
                 await Config.game_channel.send(f"{self.member.display_name} has unvoted {prev_vote.display_name}.")
 
             # Finish the kill
+            Config.dbManager.db_kill(self.member)
+
             self.status = Config.STATUS_DEAD
             if dead_role not in self.member.roles:
                 print(f"!!!KILL SANITY CHECK!!!: {self.member.name} should receive DEAD role")
@@ -96,8 +98,11 @@ class Player:
 
         Config.player_list[self.member] = Config.signup_list[self.member]
 
+        Config.dbManager.db_playerStatusUpdate(self.member, self.status)
+        return
+
     "==============================================================================================="
-    "==============================================================================================="
+    "============================Non-Functional WIP Code Below======================================"
     "==============================================================================================="
 
     # WIP - Non-functional

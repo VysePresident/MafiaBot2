@@ -25,16 +25,20 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def startsignup(self, ctx):
         print(f"Command startsignup: Author: {ctx.author.name} Initial State: {Config.signups_open}")
+        if Config.signups_open:
+            await ctx.send("Signups are already open.")
+            return
         if not Config.game_open:
             Config.configReset()
             Config.game_host = ctx.author
+            Config.guild = ctx.guild
             Config.signups_open = True
             Config.signup_list.clear()
             print(f"startsignup Result: Author: {ctx.author.name} Final State: {Config.signups_open}")
             await ctx.send('Sign ups are open! Sign up for the game by doing %signup')
 
-            # DB - Store host, guild, signups_open state
-            # Config.dbManager.db_startsignup(ctx.guild.id, Config.signups_open, game_host_id=ctx.author.id)
+            # DB - Store host, guild, signups_open state, game_open state
+            Config.dbManager.db_startsignup(ctx.guild, Config.signups_open, Config.game_open, Config.game_host)
         else:
             await ctx.send('Game is ongoing! Signups cannot be opened until the game is closed with %endgame or '
                            '%closegame!')
@@ -51,11 +55,11 @@ class AdminCommands(commands.Cog):
         if Config.signups_open:
             if user not in Config.signup_list:
                 # Create a player object - integrate this more closely into the code in the future.
-                new_player = Player(user, Config.STATUS_INACTIVE, None)
+                new_player = Player(user, Config.STATUS_INACTIVE)
                 Config.appendPlayer(new_player)
                 # Make sure the final location gives correct result.
+                Config.dbManager.db_signup(user, new_player.status)
                 await ctx.send(f'{Config.signup_list[new_player.member].displayPlayerName()} has been signed up.')
-                # Config.dbManager.db_signup(new_player.signup_number, new_player.id, new_player.vote, new_player.status)
                 return
             else:
                 await ctx.send(f'{user.display_name} is already signed up.')
@@ -73,6 +77,8 @@ class AdminCommands(commands.Cog):
         if Config.signups_open:
             if player_to_remove in Config.signup_list:
                 removed_player = Config.signup_list.pop(player_to_remove)
+                print(f"{player_to_remove.display_name} has been removed!")
+                Config.dbManager.db_unsignup(player_to_remove)
                 await ctx.send(f'{removed_player.displayPlayerName()} has been removed from the signup list.')
             else:
                 await ctx.send(f'{player_to_remove.display_name} is not on the signup list.')
@@ -90,6 +96,9 @@ class AdminCommands(commands.Cog):
               f'day_length: {day_length}')
 
         Config.global_day_length = day_length
+        if Config.game_open:
+            print(f'startgame failed - game already active')
+            await ctx.send('This command cannot be used while a game is already active!')
         if not Config.signups_open:
             print(f'startgame failed - signups closed')
             await ctx.send('Signups are currently closed.')
@@ -120,6 +129,8 @@ class AdminCommands(commands.Cog):
 
         await Config.vote_channel.send(vote_message)
 
+        Config.dbManager.db_startgame(Config.game_channel, Config.vote_channel, Config.global_day_length)
+
         await self.newday(ctx, day_length)
         return
 
@@ -129,7 +140,10 @@ class AdminCommands(commands.Cog):
         if Config.game_open:
             print(f"Command newday Author {ctx.author.name}")
             day_length = Config.global_day_length
-            Config.newDay()
+            # Config.newDay()
+            Config.day_number += 1
+            Config.vote_count_number = 1
+            Config.votesReset()
 
             alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
             await Config.game_channel.set_permissions(alive_role, send_messages=True)
@@ -137,29 +151,30 @@ class AdminCommands(commands.Cog):
             votecount_message = f"**Vote Count {Config.day_number}.0**\n\nNo votes yet."
             votecount_message += "\n" + (40 * "-")
             day_start_vote_msg = await Config.vote_channel.send(votecount_message)
-            await day_start_vote_msg.pin()
+            try:
+                await day_start_vote_msg.pin()
+            except discord.HTTPException as e:
+                await Config.vote_channel.send("There are too many pinned messages in this channel to pin this message")
 
-            day_start_msg = await Config.game_channel.send(f"Day {Config.day_number} has begun. It will end in {day_length} days.")
-            await day_start_msg.pin()
+            day_start_msg = \
+                await Config.game_channel.send(f"Day {Config.day_number} has begun. It will end in {day_length} days.")
 
-            Config.day_end_time = t.time() + day_length * 24 * 60 * 60  # WIP - day_length should already be in seconds
+            try:
+                await day_start_msg.pin()
+            except discord.HTTPException as e:
+                await Config.game_channel.send("There are too many pinned messages in this channel to pin this message")
+
+            Config.day_end_time = t.time() + Config.convertDaysToSeconds(day_length)  # WIP - day_length should already be in seconds
+
             # Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(day_length))
             Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(Config.convertDaysToSeconds(day_length)))
+
+            # How do I store day end date?  Let's do it in the
+            Config.dbManager.db_newday(Config.convertDaysToSeconds(Config.global_day_length),
+                             Config.vote_count_number, Config.day_number)
             return
         else:
             await ctx.send("No open game found!")
-
-    """async def end_day_after_delay(self, day_length):
-        new_day_length = day_length * 24 * 60 * 60
-        Config.day_end_time = t.time() + new_day_length
-        try:
-            await asyncio.sleep(new_day_length)
-            alive_role = discord.utils.get(Config.game_channel.guild.roles, name="Alive")
-            await Config.game_channel.set_permissions(alive_role, send_messages=False)
-            await Config.game_channel.send("The day has ended due to time running out.")
-            return
-        except asyncio.CancelledError:
-            print("Day phase time limit canceled!")"""
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -200,7 +215,11 @@ class AdminCommands(commands.Cog):
                                        f" and all channels have now been locked!\n"
                                        f"You may discuss the results here!\n"
                                        f"Thank you for playing and we hope you had fun!")
-                    await fallout_msg.pin()
+                    try:
+                        await fallout_msg.pin()
+                    except discord.HTTPException as e:
+                        await channel.send("There are too many pinned messages in this channel to pin this message")
+                        print("There are too many pinned messages in this channel to pin this message")
 
             # Clear all roles:
             for member in ctx.guild.members:
@@ -213,8 +232,8 @@ class AdminCommands(commands.Cog):
                 if spoiled_role in member.roles:
                     await member.remove_roles(spoiled_role)
 
-            # Reset all config values
-            # Config.day_end_task_object.cancel()
+            # Reset database and all config values
+            Config.dbManager.db_endgame()
             Config.configReset()
 
             await ctx.send("The game has ended.")
@@ -227,6 +246,7 @@ class AdminCommands(commands.Cog):
         if Config.game_open:
             print(f"Command closegame: ctx.author.name: {ctx.author.name}")
             if Config.game_open:
+                Config.dbManager.db_endgame()
                 Config.configReset()
                 await ctx.send("The game has ended. Any reveals must be done manually.")
             else:
@@ -249,6 +269,9 @@ class AdminCommands(commands.Cog):
             print("ADDING MEMBER!")
             new_player = Player(new_member, Config.STATUS_ALIVE)
             Config.signup_list[new_member] = new_player
+
+            Config.dbManager.db_addplayer(new_member)
+
             await new_player.activate()
             await ctx.send(f'{new_player.displayPlayerName()} has been added to the game!')
         else:
@@ -279,6 +302,9 @@ class AdminCommands(commands.Cog):
                     Config.signup_list = collections.OrderedDict(new_signup_list)
                     Config.player_list[new_player] = Config.signup_list[new_player]
                     alive_role = discord.utils.get(ctx.guild.roles, name="Alive")
+
+                    Config.dbManager.db_swapplayer(existing_player, new_player)
+
                     await existing_player.remove_roles(alive_role)
                     await new_player_object.member.add_roles(alive_role)
                     await ctx.send(f'{existing_player.display_name} has been replaced with {new_player.display_name}.')
@@ -308,10 +334,12 @@ class AdminCommands(commands.Cog):
                     day_length_in_seconds += int(arg[:-1]) * 60
                 else:
                     await ctx.send(f'Invalid time format: {arg}. Will only accept one of these at end of cmd: "d/h/m".')
+                    return
             Config.global_day_length = day_length_in_seconds / (24 * 60 * 60)
+
+            Config.dbManager.db_changedaylength(day_length_in_seconds)
+
             Config.day_end_task_object.cancel()
-            # Config.day_end_task_object = self.bot.loop.create_task(self.end_day_after_delay(Config.global_day_length))
-            # Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(Config.global_day_length))
             Config.day_end_task_object = self.bot.loop.create_task(Config.end_day_after_delay(day_length_in_seconds))
 
             new_day_length = Config.global_day_length * 24 * 60 * 60
@@ -326,6 +354,7 @@ class AdminCommands(commands.Cog):
                     f"Time remaining: {int(hours)} hours, {int(minutes)} minutes, and {int(seconds)} seconds.")
         else:
             await ctx.send("No open game found!")
+
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def modkill(self, ctx, member: discord.Member):
@@ -334,18 +363,23 @@ class AdminCommands(commands.Cog):
             if member in Config.signup_list and Config.signup_list[member].status == Config.STATUS_ALIVE:
                 print("Member is in Config.signup_list and has status Config.STATUS_ALIVE")
                 prev_vote, current_vote, voter = await Config.signup_list[member].kill()  # Player.kill()
-                await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
+                if prev_vote is not None:
+                    await self.bot.votecount(self.bot, ctx, voter, prev_vote, current_vote)
             else:
                 print("Member was either not in the signup list or didn't have the alive status.")
                 await ctx.send(f"{member.display_name} is not in the game or already removed.")
         else:
             await ctx.send("No open game found!")
+
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def changevotethread(self, ctx, new_vote_channel: discord.TextChannel):
         if Config.game_open:
             print(f"Command changevotethread Author: {ctx.author.name}")
             Config.vote_channel = new_vote_channel
+
+            Config.dbManager.db_changevotethread(new_vote_channel)
+
             await ctx.send(f"The vote channel is now {Config.vote_channel}")
             await Config.vote_channel.send("This is now the vote channel")
         else:
@@ -357,6 +391,9 @@ class AdminCommands(commands.Cog):
         if Config.game_open:
             print(f"Command changegamethread Author: {ctx.author.name}")
             Config.game_channel = new_game_channel
+
+            Config.dbManager.db_changegamethread(new_game_channel)
+
             await ctx.send(f"The game channel is now {Config.game_channel}")
             await Config.game_channel.send("This is now the game channel")
         else:
@@ -469,6 +506,9 @@ class AdminCommands(commands.Cog):
             print(f"Command changeday Author: {ctx.author.name} Day: {day}")
             Config.day_number = day
             Config.vote_count_number = 1
+
+            Config.dbManager.db_changeday(Config.day_number)
+
             await ctx.send(f"The new day is now {Config.day_number}")
         else:
             await ctx.send("No open game found!")
