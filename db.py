@@ -125,10 +125,10 @@ class DatabaseManager:
                         if playerlist_original_msg_id:
                             # Config.original_playerlist_message_object = discord.utils.get((Config))
                             Config.original_playerlist_message_object = \
-                                await Config.playerlist_channel.fetch(int(playerlist_original_msg_id))
+                                await Config.playerlist_channel.fetch_message(int(playerlist_original_msg_id))
                         if playerlist_updated_msg_id:
                             Config.playerlist_message_object = \
-                                await Config.playerlist_channel.fetch(int(playerlist_updated_msg_id))
+                                await Config.playerlist_channel.fetch_message(int(playerlist_updated_msg_id))
 
                     # Set this up
                     time_left_in_phase = (day_end_time - datetime.datetime.now()).total_seconds()
