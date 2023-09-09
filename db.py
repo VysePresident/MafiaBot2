@@ -220,7 +220,6 @@ class DatabaseManager:
         )
         try:
             with self.cnx.cursor() as cursor_start_signups:
-                print("startsignup Cursor up!")
                 cursor_start_signups.execute(query_start_signups, (str(guild.id), guild.name, signups_open, game_open,
                                                                    str(game_host.id), game_host.name))
                 print("startsignup commit")
