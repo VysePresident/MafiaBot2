@@ -4,6 +4,8 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 # FEATURES TO ADD:
 
+-Add error-handling that returns user hints for functions that do not receive the correct amount of parameters.
+
 -Store game/playerlist/vote channels when using %gamesetup
 
 -Write a more detailed %help command.
