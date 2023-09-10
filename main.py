@@ -28,6 +28,7 @@ bot = MafiaBot(command_prefix="%", token=bot_token)
 
 @bot.event
 async def on_ready():
+    print("EVENT on_ready fired")
 
     await bot.load_extension("admin_commands")
     await bot.load_extension("player_commands")
@@ -48,6 +49,58 @@ async def on_ready():
     Config.bot = bot  # WIP - Laziest solution to connect player.kill() to votecount().  Figure out later.
     print("Bot is online")
 
+
+@bot.event
+async def on_connect():
+    """Debugging DB disconnection"""
+    print(f"EVENT on_connect")
+    if bot.get_channel(1123498585649065994):
+        channel = bot.get_channel(1123498585649065994)
+        await channel.send(f'Our Plans are Progressing on_connect')
+
+@bot.event
+async def on_disconnect():
+    """Debugging DB disconnection"""
+    print(f"EVENT on_disconnect")
+    if bot.get_channel(1123498585649065994):
+        channel = bot.get_channel(1123498585649065994)
+        await channel.send(f'Our Plans are Progressing on_disconnect')
+
+@bot.event
+async def on_shard_connect():
+    """Debugging DB disconnection"""
+    print(f"EVENT on_shard_connect")
+    if bot.get_channel(1123498585649065994):
+        channel = bot.get_channel(1123498585649065994)
+        await channel.send(f'Our Plans are Progressing on_shard_connect')
+
+
+@bot.event
+async def on_shard_disconnect():
+    """Debugging DB disconnection"""
+    print(f"EVENT on_shard_disconnect")
+    if bot.get_channel(1123498585649065994):
+        channel = bot.get_channel(1123498585649065994)
+        await channel.send(f'Our Plans are Progressing on_shard_disconnect')
+
+@bot.event
+async def on_shard_disconnect():
+    """Debugging DB disconnection"""
+    print(f"EVENT on_shard_disconnect")
+    if bot.get_channel(1123498585649065994):
+        channel = bot.get_channel(1123498585649065994)
+        await channel.send(f'Our Plans are Progressing on_shard_disconnect')
+
+
+@bot.event
+async def on_resumed():
+    """Debugging DB disconnection"""
+    print(f"EVENT on_resumed")
+    if bot.get_channel(1123498585649065994):
+        channel = bot.get_channel(1123498585649065994)
+        await channel.send(f'Our Plans are Progressing on_shard_disconnect')
+
+"""==============================="""
 
 @bot.command()
 @commands.has_permissions(administrator=True)
