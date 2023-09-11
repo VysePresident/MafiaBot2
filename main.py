@@ -28,19 +28,18 @@ bot = MafiaBot(command_prefix="%", token=bot_token)
 
 @bot.event
 async def on_ready():
-    print("EVENT on_ready fired")
 
     await bot.load_extension("admin_commands")
     await bot.load_extension("player_commands")
 
     await db_conn()
 
-    Config.dbManager = DatabaseManager(Config.username, Config.password, Config.db_host, Config.database, bot)
+    """Config.dbManager = DatabaseManager(Config.username, Config.password, Config.db_host, Config.database, bot)
     print(f'This is database: {Config.database}')
 
     await Config.dbManager.connect()
     connResult = await Config.dbManager.setConfigurations()
-    print(f"THIS IS connResult: {connResult}")
+    print(f"THIS IS connResult: {connResult}")"""
 
     if bot.get_channel(1110103139065012244):
         channel = bot.get_channel(1110103139065012244)
@@ -51,56 +50,29 @@ async def on_ready():
 
 
 @bot.event
-async def on_connect():
-    """Debugging DB disconnection"""
-    print(f"EVENT on_connect")
-    if bot.get_channel(1123498585649065994):
-        channel = bot.get_channel(1123498585649065994)
-        await channel.send(f'Our Plans are Progressing on_connect')
-
-@bot.event
-async def on_disconnect():
-    """Debugging DB disconnection"""
-    print(f"EVENT on_disconnect")
-    if bot.get_channel(1123498585649065994):
-        channel = bot.get_channel(1123498585649065994)
-        await channel.send(f'Our Plans are Progressing on_disconnect')
-
-@bot.event
-async def on_shard_connect():
-    """Debugging DB disconnection"""
-    print(f"EVENT on_shard_connect")
-    if bot.get_channel(1123498585649065994):
-        channel = bot.get_channel(1123498585649065994)
-        await channel.send(f'Our Plans are Progressing on_shard_connect')
-
-
-@bot.event
-async def on_shard_disconnect():
-    """Debugging DB disconnection"""
-    print(f"EVENT on_shard_disconnect")
-    if bot.get_channel(1123498585649065994):
-        channel = bot.get_channel(1123498585649065994)
-        await channel.send(f'Our Plans are Progressing on_shard_disconnect')
-
-@bot.event
-async def on_shard_disconnect():
-    """Debugging DB disconnection"""
-    print(f"EVENT on_shard_disconnect")
-    if bot.get_channel(1123498585649065994):
-        channel = bot.get_channel(1123498585649065994)
-        await channel.send(f'Our Plans are Progressing on_shard_disconnect')
-
-
-@bot.event
 async def on_resumed():
-    """Debugging DB disconnection"""
-    print(f"EVENT on_resumed")
-    if bot.get_channel(1123498585649065994):
-        channel = bot.get_channel(1123498585649065994)
-        await channel.send(f'Our Plans are Progressing on_shard_disconnect')
 
-"""==============================="""
+    await db_conn()
+    print("DB CONNECTION HAS RELOADED!")
+
+    extensions = ["admin_commands", "player_commands"]
+    for extension in extensions:
+        if extension not in bot.extensions:
+            try:
+                bot.load_extension(extension)
+            except Exception as e:
+                print(f"Failed to load extension {extension}: {e}")
+        else:
+            print(f"Extension {extension} is already loaded")
+    print("BOT EXTENSIONS ARE RELOADED!")
+
+    if not Config.bot:
+        print("CONFIG.BOT IS RESTORED")
+        Config.bot = bot
+    else:
+        print("Config.bot already fine")
+
+
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -130,6 +102,13 @@ async def db_conn():
         except ImportError:
             username = password = host = database = None
             print("All imports failed. Not connected to database")
+
+    Config.dbManager = DatabaseManager(Config.username, Config.password, Config.db_host, Config.database, bot)
+    print(f'This is database: {Config.database}')
+
+    await Config.dbManager.connect()
+    connResult = await Config.dbManager.setConfigurations()
+    print(f"THIS IS connResult: {connResult}")
     
 
 bot.run(bot_token)
