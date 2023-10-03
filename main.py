@@ -59,7 +59,7 @@ async def on_resumed():
     for extension in extensions:
         if extension not in bot.extensions:
             try:
-                bot.load_extension(extension)
+                await bot.load_extension(extension)
             except Exception as e:
                 print(f"Failed to load extension {extension}: {e}")
         else:
