@@ -135,9 +135,6 @@ class DatabaseManager:
                     Config.day_end_task_object = self.bot.loop.create_task(
                         Config.end_day_after_delay(time_left_in_phase))
 
-                    """Config.day_end_time = phase_end_time
-                    print(f"Set Config.day_end_time: {Config.day_end_time} phase_end_time: {phase_end_time}")"""
-
                     Config.day_number = day_number
                     print(f"Set Config.day_number: {Config.day_number} phase_number: {day_number}")
 
@@ -149,7 +146,7 @@ class DatabaseManager:
                     print(f"Set Config.vote_count_number: {Config.vote_count_number} vote_count_number:"
                           f" {vote_count_number}")
 
-                    await Config.game_channel.send("Reloading game data.")
+                    # await Config.game_channel.send("Reloading game data.")
 
                 # Set up players and votes
                 cursorPlayers = self.cnx.cursor(buffered=True)
@@ -287,13 +284,6 @@ class DatabaseManager:
         except Exception as e:
             print(f"startgame error occurred: {e}")
             self.cnx.rollback()
-
-        """query_activate_players = (
-            f"SELECT * FROM {self.database}.{Config.PLAYER_TABLE}"
-        )
-        cursor_activate_players = (
-            
-        )"""
 
     def db_newday(self, global_day_length_in_seconds, vote_count_number, day_number):
         """This function stores information from the newDay() method split between Config and admin_commands.py"""
