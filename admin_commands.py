@@ -511,7 +511,7 @@ class AdminCommands(commands.Cog):
         channel_name = current_game_number + channel_break + "spec-chat"
         spec_channel = await category.create_text_channel(channel_name)
         await spec_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
-        await spec_channel.set_permissions(spec_role, view_channel=True, send_messages=False)
+        await spec_channel.set_permissions(spec_role, view_channel=True, send_messages=True)
 
         # Mod thread - only spoiled can see.
         channel_name = current_game_number + channel_break + "mod-thread"
@@ -523,7 +523,7 @@ class AdminCommands(commands.Cog):
         channel_name = current_game_number + channel_break + "spoiled-spec"
         spoiled_channel = await category.create_text_channel(channel_name)
         await spoiled_channel.set_permissions(ctx.guild.default_role, view_channel=False, send_messages=False)
-        await spoiled_channel.set_permissions(spoil_role, view_channel=True, send_messages=False)
+        await spoiled_channel.set_permissions(spoil_role, view_channel=True, send_messages=True)
 
         # Fallout chat - nobody can see until %endgame.
         channel_name = current_game_number + channel_break + "fallout"
