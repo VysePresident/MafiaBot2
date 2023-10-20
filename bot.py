@@ -32,8 +32,8 @@ class MafiaBot(commands.Bot):
         # Construct ordered vote count for each player voted.
         count = self.constructVoteCounts()
         # Create and send votecount message
-        votecount_strings, check_if_end_day, lynch_status = self.createVoteCountMessage(
-            count, voter, prev_vote, current_vote)
+        votecount_strings, check_if_end_day, lynch_status = \
+            self.createVoteCountMessage(count, voter, prev_vote, current_vote)
         votecount_message = f"**Vote Count {Config.day_number}.{Config.vote_count_number} - **{ctx.message.jump_url}" \
                             f"\n\n"
         votecount_message += votecount_strings + "\n"

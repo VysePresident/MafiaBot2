@@ -160,7 +160,6 @@ class AdminCommands(commands.Cog):
             await Config.game_channel.set_permissions(alive_role, send_messages=True)
 
             votecount_message = f"**Vote Count {Config.day_number}.0**" + "\n\n"
-            # votecount_message += f"\n\nNo votes yet."
             votecount_message += self.bot.createVoteCountMessage({}, None, None, None)[0] + "\n"
             votecount_message += self.bot.findNotVoting() + "\n"
             votecount_message += self.bot.playersNeededToLynch()
