@@ -54,7 +54,8 @@ class DatabaseManager:
             self.cnx.close()
             self.cnx = None
             print("Connection closed!")
-        print("No Connection to close!")
+        else:
+            print("No Connection to close!")
 
     async def setConfigurations(self):
         """Reset the configurations channel"""
@@ -123,7 +124,6 @@ class DatabaseManager:
                         Config.playerlist_channel = discord.utils.get(Config.guild.channels,
                                                                       id=int(player_list_channel_id))
                         if playerlist_original_msg_id:
-                            # Config.original_playerlist_message_object = discord.utils.get((Config))
                             Config.original_playerlist_message_object = \
                                 await Config.playerlist_channel.fetch_message(int(playerlist_original_msg_id))
                         if playerlist_updated_msg_id:
@@ -132,8 +132,8 @@ class DatabaseManager:
 
                     # Set this up
                     time_left_in_phase = (day_end_time - datetime.datetime.now()).total_seconds()
-                    Config.day_end_task_object = self.bot.loop.create_task(
-                        Config.end_day_after_delay(time_left_in_phase))
+                    # Config.day_end_task_object = self.bot.loop.create_task(
+                    #     Config.end_day_after_delay(time_left_in_phase))
 
                     Config.day_number = day_number
                     print(f"Set Config.day_number: {Config.day_number} phase_number: {day_number}")
@@ -145,8 +145,6 @@ class DatabaseManager:
                     Config.vote_count_number = vote_count_number
                     print(f"Set Config.vote_count_number: {Config.vote_count_number} vote_count_number:"
                           f" {vote_count_number}")
-
-                    # await Config.game_channel.send("Reloading game data.")
 
                 # Set up players and votes
                 cursorPlayers = self.cnx.cursor(buffered=True)
@@ -173,11 +171,9 @@ class DatabaseManager:
 
                     player = Player(member, player_status)
                     print(f"Adding player number {index}: {player.member.display_name} to player_list roster!")
-                    # Config.player_list[member] = player
                     player_list[sign_up_date] = (member, player)
                     if player_status == Config.STATUS_ALIVE or player_status == Config.STATUS_INACTIVE:
                         print(f"Player  {index}: {player.member.display_name} to player_list roster!")
-                        # Config.signup_list[member] = player
                         signup_list[sign_up_date] = (member, player)
 
                     # Log the vote and make sure it's stored correctly
