@@ -136,15 +136,15 @@ class DatabaseManager:
                     #     Config.end_day_after_delay(time_left_in_phase))
 
                     Config.day_number = day_number
-                    print(f"Set Config.day_number: {Config.day_number} phase_number: {day_number}")
+                    # print(f"Set Config.day_number: {Config.day_number} phase_number: {day_number}")
 
                     Config.global_day_length = ((global_day_length_in_seconds / 60) / 60) / 24
-                    print(f"Set Config.global_day_length: {Config.global_day_length} phase_length_in_seconds:"
-                          f" {global_day_length_in_seconds}")
+                    # print(f"Set Config.global_day_length: {Config.global_day_length} phase_length_in_seconds:"
+                    #       f" {global_day_length_in_seconds}")
 
                     Config.vote_count_number = vote_count_number
-                    print(f"Set Config.vote_count_number: {Config.vote_count_number} vote_count_number:"
-                          f" {vote_count_number}")
+                    # print(f"Set Config.vote_count_number: {Config.vote_count_number} vote_count_number:"
+                    #       f" {vote_count_number}")
 
                 # Set up players and votes
                 cursorPlayers = self.cnx.cursor(buffered=True)
@@ -170,15 +170,15 @@ class DatabaseManager:
                             voted = discord.utils.get(Config.guild.members, id=int(vote_id))
 
                     player = Player(member, player_status)
-                    print(f"Adding player number {index}: {player.member.display_name} to player_list roster!")
+                    # print(f"Adding player number {index}: {player.member.display_name} to player_list roster!")
                     player_list[sign_up_date] = (member, player)
                     if player_status == Config.STATUS_ALIVE or player_status == Config.STATUS_INACTIVE:
-                        print(f"Player  {index}: {player.member.display_name} to player_list roster!")
+                        # print(f"Player  {index}: {player.member.display_name} to player_list roster!")
                         signup_list[sign_up_date] = (member, player)
 
                     # Log the vote and make sure it's stored correctly
-                    print(f"Player {player.member.display_name} voted for "
-                          f"{voted.display_name if voted != Config.NOT_VOTING else voted}")
+                    # print(f"Player {player.member.display_name} voted for "
+                    #       f"{voted.display_name if voted != Config.NOT_VOTING else voted}")
                     if voted != Config.NOT_VOTING:
                         Config.votes[player.member] = voted
                         votes[vote_date] = (member, voted)
