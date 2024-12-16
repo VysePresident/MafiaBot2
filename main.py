@@ -107,8 +107,11 @@ async def db_conn():
     print(f'This is database: {Config.database}')
 
     await Config.dbManager.connect()
-    connResult = await Config.dbManager.setConfigurations()
-    print(f"THIS IS connResult: {connResult}")
+    if not Config.player_list:
+        connResult = await Config.dbManager.setConfigurations()
+        print(f"THIS IS connResult: {connResult}")
+    else:
+        print(f"Reloading was unnecessary")
     
 
 bot.run(bot_token)
