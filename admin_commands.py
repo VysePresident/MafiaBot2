@@ -117,7 +117,7 @@ class AdminCommands(commands.Cog):
             await ctx.send('One or both channels are incorrect.')
             return
         for user in Config.signup_list:
-            print(f"This is user: {user.display_name} This is status: {Config.signup_list[user].status}")
+            # print(f"This is user: {user.display_name} This is status: {Config.signup_list[user].status}")
             member = ctx.guild.get_member(user.id)  # Confirm member is still in server
             if member is not None:
                 await Config.signup_list[member].activate()
