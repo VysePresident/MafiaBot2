@@ -91,6 +91,7 @@ async def db_conn():
         Config.password = password
         Config.db_host = host
         Config.database = database
+        print(f"INFO: {username}, {password}, {host}, {database}")
     except ImportError:
         try:
             from test_token import username, password, host, database

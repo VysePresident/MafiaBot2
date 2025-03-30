@@ -226,7 +226,7 @@ class DatabaseManager:
         """Store a player's info after they join."""
         vote_name = Config.NOT_VOTING
         vote_id = Config.NOT_VOTING
-        replacement_id = Config.NO_REPLACEMENT
+        replacement_id = None
 
         query_signup = (
             f"INSERT INTO {self.database}.{Config.PLAYER_TABLE} (player_id, player_name, player_status, sign_up_date, "

@@ -68,6 +68,10 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 
 -Should be able to close signups/game at any point. (Discourage accidental use and make sure they are aware it's not the preferred choice.)
 
+-Should be able to edit pinned posts manually if desired, particularly in playerlist.
+
+-Playerlist deaths should include the post where they died.
+
 # BUGS (Bunny):
 
 -(Logged July 8th, 2023) - The %gamesetup command triggers rate-limiting constantly.  This lasts for ~10 seconds in the test server but can last 1-5 minutes in the actual Mafia server.  This is a serious problem and needs to be optimized somehow. 
@@ -77,6 +81,12 @@ Bot made for Discord, runs in Python, uses SparkedHost.us as the host.
 -(Maybe fixed?) Bot can't handle underscores and certain usernames.
 
 -(Logged August 8th, 2023) - Players who sign up in the exact same second will partially overwrite the other player & the first player will not be retrieved correctly from the database.  This is because they are sorted in a dictionary according to time.  Update the sort to make the value in the dictionary a list instead of a single value in order to contain duplicates.
+
+-(Logged March 30, 2025) Playerlist doesn't consistently update upon forcibly adding/swapping players into the game.
+
+-(Logged March 30, 2025) Signup List command removes dead players.
+
+Test
 
 # IN-TESTING-PHASE:
 1) Features, changes, bug-fixes that need testing when bot is free:
