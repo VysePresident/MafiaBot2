@@ -44,6 +44,7 @@ class AdminCommands(commands.Cog):
                            '%closegame!')
             print(f"startsignup Result: Author: {ctx.author.name} Final State: {Config.signups_open}")
 
+
         return
 
     @commands.command()
