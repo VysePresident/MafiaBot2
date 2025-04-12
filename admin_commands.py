@@ -44,7 +44,6 @@ class AdminCommands(commands.Cog):
                            '%closegame!')
             print(f"startsignup Result: Author: {ctx.author.name} Final State: {Config.signups_open}")
 
-
         return
 
     @commands.command()
@@ -278,7 +277,7 @@ class AdminCommands(commands.Cog):
             await ctx.send("The game hasn't started yet! Use %forcesignup or %unforcesignup instead")
             return
         if not Config.game_open:
-            ctx.send("No open game found!")
+            await ctx.send("No open game found!")
             return
         if new_member not in Config.signup_list:
             print("ADDING MEMBER!")
