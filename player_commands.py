@@ -112,8 +112,7 @@ class PlayerCommands(commands.Cog):
     @commands.command()
     async def unvote(self, ctx):
         """This function is used when a member wishes to remove their vote without replacing it."""
-        # DEBUG LOG
-        print(f'command unvote: ctx.author: {ctx.author.name} has unvoted {Config.votes[ctx.author]}')
+
         if not Config.game_open:
             await ctx.send("You cannot vote if there is no open game!")
             return
@@ -121,6 +120,8 @@ class PlayerCommands(commands.Cog):
             await ctx.send("You can only vote in the game chat.")
             return
         if ctx.author in Config.votes:
+            # DEBUG LOG
+            print(f'command unvote: ctx.author: {ctx.author.name} has unvoted {Config.votes[ctx.author]}')
             prev_vote = Config.votes.pop(ctx.author)
             current_vote = Config.NOT_VOTING
             voter = ctx.author
